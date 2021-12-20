@@ -13,6 +13,8 @@
 
 Paddle = Class{}
 
+
+
 --[[
     The `init` function on our class is called just once, when the object
     is first created. Used to set up all variables in the class and get it
@@ -32,6 +34,7 @@ function Paddle:init(x, y, width, height)
     self.width = width
     self.height = height
     self.dy = 0
+    self.color = 'white'
 end
 
 function Paddle:update(dt)
@@ -50,6 +53,21 @@ function Paddle:update(dt)
     end
 end
 
+function Paddle:playHitSound()
+    choice = math.random(1,5)
+    if choice == 1 then
+        hitSounds['e']:play()
+    elseif choice == 2 then
+        hitSounds['f#']:play()
+    elseif choice == 3 then
+        hitSounds['g#']:play()
+    elseif choice == 4 then
+        hitSounds['b']:play()
+    elseif choice == 5 then
+        hitSounds['c#']:play()
+    end
+end
+
 --[[
     To be called by our main function in `love.draw`, ideally. Uses
     LÖVE2D's `rectangle` function, which takes in a draw mode as the first
@@ -58,5 +76,19 @@ end
     newest version of LÖVE2D, you can even draw rounded rectangles!
 ]]
 function Paddle:render()
-    love.graphics.rectangle('fill', self.x, self.y, self.width, self.height)
+    if self.color == 'white' then
+        love.graphics.rectangle('fill', self.x, self.y, self.width, self.height)
+    elseif self.color == 'red' then
+        love.graphics.setColor(.67, .20, .20, 1)
+        love.graphics.rectangle('fill', self.x, self.y, self.width, self.height)
+        love.graphics.setColor(1, 1, 1, 1)
+    elseif self.color == 'green' then
+        love.graphics.setColor(.22, .58, .43, 1)
+        love.graphics.rectangle('fill', self.x, self.y, self.width, self.height)
+        love.graphics.setColor(1, 1, 1, 1)
+    elseif self.color == 'blue' then
+        love.graphics.setColor(.35, .43, .88, 1)
+        love.graphics.rectangle('fill', self.x, self.y, self.width, self.height)
+        love.graphics.setColor(1, 1, 1, 1)
+    end
 end
