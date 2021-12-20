@@ -33,6 +33,10 @@ LevelMaker = Class{}
 function LevelMaker.createMap(level)
     local bricks = {}
 
+    -- Boolean to decide whether a level should have a locked brick
+    local hasLockedBrick = math.random(0,1)
+
+
     -- randomly choose the number of rows
     local numRows = math.random(1, 5)
 
@@ -119,10 +123,11 @@ function LevelMaker.createMap(level)
         end
     end 
 
-    lockedBrick = math.random(1,#bricks)
-
-    bricks[lockedBrick].isLocked = true
-
+    if hasLockedBrick == 1 then
+        -- Randomly select location for locked brick and toggle isLocked
+        lockedBrick = math.random(1,#bricks)
+        bricks[lockedBrick].isLocked = true
+    end
 
     -- in the event we didn't generate any bricks, try again
     if #bricks == 0 then

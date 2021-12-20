@@ -28,31 +28,33 @@ function PowerUp:init(brick)
     -- starting dimensions
     self.width = 16
     self.height = 16
-    self.type = math.random(1,11)
+    -- Restricted to 6 & 7 (multiball & key) for submission
+    self.type = math.random(6,7)
+    self.graphicIndex = 0
     self.inPlay = false
 
     -- Power Up Graphics Encoding
     if self.type == 1 then
-        -- Recover Health
-        self.type = 3
+        -- SLow Ball
+        self.graphicIndex = 1
     elseif self.type == 2 then
-        --Multiball
-        self.type = 9
+        -- Speed Ball
+        self.graphicIndex = 2
     elseif self.type == 3 then
-        --Key
-        self.type = 10
-    elseif self.type == 4 or self.type == 5 then
-        --Big ball
-        self.type = 8
-    elseif self.type == 6 or self.type == 7 then
-        --Small ball
-        self.type = 7
-    elseif self.type == 8 or self.type == 9 then
-        --Slow ball
-        self.type = 1
-    elseif self.type == 10 or self.type == 11 then
-        --Speed ball
-        self.type = 2
+        -- Recover
+        self.graphicIndex = 3
+    elseif self.type == 4 then
+        -- Shrink ball
+        self.graphicIndex = 7
+    elseif self.type == 5 then
+        -- Grow ball
+        self.graphicIndex = 8
+    elseif self.type == 6 then
+        -- Multi-ball
+        self.graphicIndex = 9
+    elseif self.type == 7 then
+        -- Key
+        self.graphicIndex = 10
     end
 end
 --[[
@@ -82,6 +84,6 @@ end
     that corresponds to the proper skin and size.
 ]]
 function PowerUp:render()
-    love.graphics.draw(gTextures['main'], gFrames['powerups'][self.type],
+    love.graphics.draw(gTextures['main'], gFrames['powerups'][self.graphicIndex],
         self.x, self.y)
 end

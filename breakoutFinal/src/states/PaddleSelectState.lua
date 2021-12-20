@@ -53,7 +53,7 @@ function PaddleSelectState:update(dt)
             score = 0,
             highScores = self.highScores,
             level = 1,
-            recoverPoints = 5000,
+            recoverPoints = 2000,
             hasKey = false,
             debugOn = false
         })

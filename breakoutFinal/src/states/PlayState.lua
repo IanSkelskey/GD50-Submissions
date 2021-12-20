@@ -21,6 +21,10 @@ PlayState = Class{__includes = BaseState}
     states as we go from playing to serving.
 ]]
 function PlayState:enter(params)
+    --for video
+    self.keyCount = 0
+    self.multiCount = 0
+
     self.paddle = params.paddle
     self.bricks = params.bricks
     self.health = params.health
@@ -61,6 +65,11 @@ function PlayState:update(dt)
                 Power Up Definitions
             ]]
             if powerup:collides(self.paddle) then
+                if powerup.type == 6 then
+                    self.multiCount = self.multiCount + 1
+                elseif powerup.type == 7 then
+                    self.keyCount = self.keyCount + 1
+                end
                 self.score = self.score + 50
                 -- Play sound
                 gSounds['powerup']:stop()
@@ -83,53 +92,54 @@ function PlayState:update(dt)
                         self.health = self.health + 1
                     end
                 elseif powerup.type == 4 then
-
-                elseif powerup.type == 5 then
-                elseif powerup.type == 6 then
-                elseif powerup.type == 7 then
                     --Small Ball
                     for k, ball in pairs(self.balls) do
                         if ball.size > 0 then
                             ball.size = ball.size - 1
                         end
                     end
-                elseif powerup.type == 8 then
+                elseif powerup.type == 5 then
                     --Big Ball
                     for k, ball in pairs(self.balls) do
                         if ball.size < 2 then
                             ball.size = ball.size + 1
                         end
                     end
-                elseif powerup.type == 9 then
+                elseif powerup.type == 6 then
                     -- Multi-ball
+                    -- Create two new balls
                     b1 = Ball(self.balls[1].skin)
                     b2 = Ball(self.balls[1].skin)
-                    --Make sure that new balls match size of OG ball
+                    -- Make sure that new balls match size of original
                     if self.balls[1].size == 2 then
+                    -- Large
                         b1.size = 2
                         b2.size = 2
                     elseif self.balls[1].size == 0 then
+                    -- Small
                         b1.size = 0
                         b2.size = 0
                     else
+                    -- Medium (Default)
                         b1.size = 1
                         b2.size = 1
                     end
+                    -- Initialize new ball positions to match original
 				    b1.x = self.balls[1].x
 				    b1.y = self.balls[1].y
+                    b2.x = self.balls[1].x
+				    b2.y = self.balls[1].y		
+                    -- Assign random trajectory
 				    b1.dx = math.random(-200, 200) 
 				    b1.dy = math.random(-50, -60)
-				
-
-				    b2.x = self.balls[1].x
-				    b2.y = self.balls[1].y				
 				    b2.dx = math.random(-200, 200) 
 				    b2.dy = math.random(-50, -60)
-				
+				    -- Add new balls to table
 				    table.insert(self.balls, b1)
 				    table.insert(self.balls, b2)
+                    -- Update ballCount variable
                     self.ballCount = self.ballCount + 2
-                elseif powerup.type == 10 then
+                elseif powerup.type == 7 then
                     --Key powerup
                     self.hasKey = true
                 end
@@ -243,7 +253,7 @@ function PlayState:update(dt)
                         highScores = self.highScores,
                         ball = self.balls,
                         recoverPoints = self.recoverPoints,
-                        hasKey = self.hasKey,
+                        hasKey = false, 
                         debugOn = self.debugOn
                     })
                 end
