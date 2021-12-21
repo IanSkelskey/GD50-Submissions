@@ -29,7 +29,7 @@ function PowerUp:init(brick)
     self.width = 16
     self.height = 16
     -- Restricted to 6 & 7 (multiball & key) for submission
-    self.type = math.random(6,7)
+    self.type = math.random(1,7)
     self.graphicIndex = 0
     self.inPlay = false
 
@@ -67,7 +67,7 @@ function PowerUp:collides(target)
 
     if self.y > target.y + target.height or target.y > self.y + self.height then
         return false
-    end 
+    end
 
     return true
 end
