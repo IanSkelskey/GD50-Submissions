@@ -49,6 +49,7 @@ function StateMachine:init(states)
 	self.currentStateName = ''
 end
 
+
 function StateMachine:currentState()
 	return self.currentStateName
 end
@@ -58,6 +59,9 @@ function StateMachine:change(stateName, enterParams)
 	self.current:exit()
 	self.current = self.states[stateName]()
 	self.current:enter(enterParams)
+	if self.previousStateName ~= '' then
+		self.previousStateName = self.currentStateName
+	end
 	self.currentStateName = stateName
 end
 

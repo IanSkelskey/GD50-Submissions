@@ -18,7 +18,7 @@
 
     This version is built to more closely resemble the NES than
     the original Pong machines or the Atari 2600 in terms of
-    resolution, though in widescreen (16:9) so it looks nicer on 
+    resolution, though in widescreen (16:9) so it looks nicer on
     modern systems.
 ]]
 
@@ -59,6 +59,7 @@ require 'states/TrainingServeState'
 require 'states/TrainingState'
 require 'states/ControlsState'
 require 'states/SettingsState'
+require 'states/CustomizationState'
 
 
 -- size of our actual window
@@ -160,7 +161,7 @@ function love.load()
     hitSounds['c#']:setVolume(MASTER_VOLUME)
     music['intro-chord']:setVolume(MASTER_VOLUME)
     music['bass-loop']:setVolume(MASTER_VOLUME)
-    
+
     -- initialize our virtual resolution, which will be rendered within our
     -- actual window no matter its dimensions
     push:setupScreen(VIRTUAL_WIDTH, VIRTUAL_HEIGHT, WINDOW_WIDTH, WINDOW_HEIGHT, {
@@ -176,7 +177,7 @@ function love.load()
     -- 3. 'play' (the ball is in play, bouncing between paddles)
     -- 4. 'done' (the game is over, with a victor, ready for restart)
         -- initialize state machine with all state-returning functions
-    
+
     gStateMachine = StateMachine {
         ['title'] = function() return TitleScreenState() end,
         ['difficulty'] = function() return DifficultySelectState() end,
@@ -185,7 +186,8 @@ function love.load()
         ['training-serve'] = function() return TrainingServeState() end,
         ['training'] = function() return TrainingState() end,
         ['controls'] = function() return ControlsState() end,
-        ['settings'] = function() return SettingsState() end
+        ['settings'] = function() return SettingsState() end,
+        ['customization'] = function() return CustomizationState() end
     }
     gStateMachine:change('title')
 
@@ -215,7 +217,10 @@ function love.keypressed(key)
     if key == 'escape' then
         love.event.quit()
     end
+
 end
+
+
 
 --[[
     Custom function to extend LÖVE's input handling; returns whether a given
@@ -250,7 +255,7 @@ function love.draw()
     push:start()
 
     love.graphics.clear(40/255, 45/255, 52/255, 1) --rgb values only from 0 to 1
-    
+
     gStateMachine:render()
 
     -- show the score before ball is rendered so it can move over the text
@@ -303,4 +308,3 @@ function displayFPS()
     love.graphics.print('FPS: ' .. tostring(love.timer.getFPS()), 10, 10)
     love.graphics.setColor(255, 255, 255, 255)
 end
-

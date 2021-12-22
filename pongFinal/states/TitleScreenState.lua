@@ -14,7 +14,7 @@ function TitleScreenState:init()
 end
 
 function TitleScreenState:update(dt)
-    
+
     music['bass-loop']:setLooping(true)
     --print('current: ')
     --print(music['intro-chord']:tell())
@@ -36,8 +36,6 @@ function TitleScreenState:update(dt)
             elseif selection == 3 then
                 gStateMachine:change('training-serve')
             elseif selection == 4 then
-                gStateMachine:change('controls')
-            elseif selection == 5 then
                 gStateMachine:change('settings')
             end
     end
@@ -45,13 +43,13 @@ function TitleScreenState:update(dt)
     if love.keyboard.wasPressed('up') then
         sounds['paddle_hit']:play()
         if selection == 1 then
-            selection = 5
+            selection = 4
         else
             selection = selection - 1
         end
     elseif love.keyboard.wasPressed('down') then
         sounds['paddle_hit']:play()
-        if selection == 5 then
+        if selection == 4 then
             selection = 1
         else
             selection = selection + 1
@@ -69,8 +67,7 @@ function TitleScreenState:render()
     love.graphics.printf('1-Player', 0, 190, VIRTUAL_WIDTH, 'center')
     love.graphics.printf('2-Player', 0, 200, VIRTUAL_WIDTH, 'center')
     love.graphics.printf('Training', 0, 210, VIRTUAL_WIDTH, 'center')
-    love.graphics.printf('Controls', 0, 220, VIRTUAL_WIDTH, 'center')
-    love.graphics.printf('Settings', 0, 230, VIRTUAL_WIDTH, 'center')
+    love.graphics.printf('Settings', 0, 220, VIRTUAL_WIDTH, 'center')
 
     if selection == 1 then
         love.graphics.printf('>>', 180, 190, VIRTUAL_WIDTH, 'left')
@@ -80,8 +77,6 @@ function TitleScreenState:render()
         love.graphics.printf('>>', 180, 210, VIRTUAL_WIDTH, 'left')
     elseif selection == 4 then
         love.graphics.printf('>>', 180, 220, VIRTUAL_WIDTH, 'left')
-    elseif selection == 5 then
-        love.graphics.printf('>>', 180, 230, VIRTUAL_WIDTH, 'left')
     end
 
 end
