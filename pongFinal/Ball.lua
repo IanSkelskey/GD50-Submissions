@@ -20,7 +20,7 @@ function Ball:init(x, y, width, height)
     self.width = width
     self.height = height
 
-    self.shape = 'circle'
+    self.shape = 'square'
 
     -- these variables are for keeping track of our velocity on both the
     -- X and Y axis, since the ball can move in two dimensions
@@ -34,7 +34,7 @@ end
     on whether their rectangles overlap.
 ]]
 function Ball:collides(paddle)
-    
+
     -- first, check to see if the left edge of either is farther to the right
     -- than the right edge of the other
     if self.x > paddle.x + paddle.width or paddle.x > self.x + self.width then
@@ -45,7 +45,7 @@ function Ball:collides(paddle)
     -- edge of the other
     if self.y > paddle.y + paddle.height or paddle.y > self.y + self.height then
         return false
-    end 
+    end
     --change color of ball to match paddle it collides with.
     self.color = paddle.color
     -- if the above aren't true, they're overlapping
@@ -70,18 +70,18 @@ end
 
 function Ball:render()
     if self.color == 'white' then
-        
+
     elseif self.color == 'red' then
         love.graphics.setColor(.67, .20, .20, 1)
     elseif self.color == 'green' then
-        love.graphics.setColor(.22, .58, .43, 1)           
+        love.graphics.setColor(.22, .58, .43, 1)
     elseif self.color == 'blue' then
         love.graphics.setColor(.35, .43, .88, 1)
     end
     if(self.shape == 'square') then
         love.graphics.rectangle('fill', self.x, self.y, self.width, self.height)
     elseif(self.shape == 'circle') then
-        love.graphics.circle('fill', self.x, self.y, self.width, 20)
+        love.graphics.circle('fill', self.x, self.y, self.width/2, 6)
     end
     love.graphics.setColor(1, 1, 1, 1)
 end

@@ -4,7 +4,12 @@ require 'Paddle'
 require 'Ball'
 
 function CustomizationState:init()
-    selection = 1
+    row_selection = 1
+    col_selection = 1
+
+    round_ball = Ball(VIRTUAL_WIDTH/2 - 20, 85, 4, 4)
+    square_ball = Ball(VIRTUAL_WIDTH/2 + 18, 87, 4, 4)
+    square_ball.shape = 'circle'
 
     green_dummy = Paddle(VIRTUAL_WIDTH/2 - 35, 135, 20, 5)
     green_dummy.color = 'green'
@@ -66,6 +71,12 @@ function CustomizationState:render()
 	-- UI messages
     love.graphics.setFont(scoreFont)
     love.graphics.printf('Customization', 0, 20, VIRTUAL_WIDTH, 'center')
+
+    love.graphics.setFont(smallFont)
+    love.graphics.printf('Choose your ball shape!', 0, 65, VIRTUAL_WIDTH, 'center')
+
+    round_ball:render()
+    square_ball:render()
 
 
     love.graphics.setFont(smallFont)
