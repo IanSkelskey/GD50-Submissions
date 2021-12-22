@@ -14,6 +14,8 @@ ScoreState = Class{__includes = BaseState}
     When we enter the score state, we expect to receive the score
     from the play state so we know what to render to the State.
 ]]
+local DIAMOND_IMAGE = love.graphics.newImage('diamond.png')
+local PLATINUM_IMAGE = love.graphics.newImage('platinum.png')
 local GOLD_IMAGE = love.graphics.newImage('gold.png')
 local SILVER_IMAGE = love.graphics.newImage('silver.png')
 local BRONZE_IMAGE = love.graphics.newImage('bronze.png')
@@ -36,18 +38,27 @@ end
 
 function ScoreState:render()
     -- simply render the score to the middle of the screen
-
-    if score > 14 then
+    if score > 199 then
+      love.graphics.setFont(flappyFont)
+      love.graphics.printf('DIAMOND', 0, 32, VIRTUAL_WIDTH, 'center')
+      DIAMOND_IMAGE:setFilter("nearest","nearest")
+      love.graphics.draw(DIAMOND_IMAGE, VIRTUAL_WIDTH/2 - 32, 80, 0, 4, 4)
+    elseif score > 99 then
+      love.graphics.setFont(flappyFont)
+      love.graphics.printf('PLATINUM', 0, 32, VIRTUAL_WIDTH, 'center')
+      PLATINUM_IMAGE:setFilter("nearest","nearest")
+      love.graphics.draw(PLATINUM_IMAGE, VIRTUAL_WIDTH/2 - 32, 80, 0, 4, 4)
+    elseif score > 49 then
         love.graphics.setFont(flappyFont)
         love.graphics.printf('GOLD', 0, 32, VIRTUAL_WIDTH, 'center')
         GOLD_IMAGE:setFilter("nearest","nearest")
         love.graphics.draw(GOLD_IMAGE, VIRTUAL_WIDTH/2 - 32, 80, 0, 4, 4)
-    elseif score > 9 then
+    elseif score > 24 then
         love.graphics.setFont(flappyFont)
         love.graphics.printf('SILVER', 0, 32, VIRTUAL_WIDTH, 'center')
         SILVER_IMAGE:setFilter("nearest","nearest")
         love.graphics.draw(SILVER_IMAGE, VIRTUAL_WIDTH/2 - 32, 80, 0, 4, 4)
-    elseif score > 4 then
+    elseif score > 9 then
         love.graphics.setFont(flappyFont)
         love.graphics.printf('BRONZE', 0, 32, VIRTUAL_WIDTH, 'center')
         BRONZE_IMAGE:setFilter("nearest","nearest")
@@ -64,5 +75,5 @@ end
 
 function ScoreState:exit()
     scrolling = true
-    
+
 end

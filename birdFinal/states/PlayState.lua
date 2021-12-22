@@ -29,20 +29,20 @@ function PlayState:init()
     self.lastY = -PIPE_HEIGHT + math.random(80) + 20
 
     self.pipeInterval = math.random(6,12)/3
-    
+
 
 end
 
 function PlayState:update(dt)
     -- update timer for pipe spawning
     self.timer = self.timer + dt
-    
+
     -- spawn a new pipe pair every second and a half
     if self.timer >= self.pipeInterval then
         -- modify the last Y coordinate we placed so pipe gaps aren't too far apart
         -- no higher than 10 pixels below the top edge of the screen,
         -- and no lower than a gap length (90 pixels) from the bottom
-        local y = math.max(-PIPE_HEIGHT + 10, 
+        local y = math.max(-PIPE_HEIGHT + 10,
             math.min(self.lastY + math.random(-20, 20), VIRTUAL_HEIGHT - 90 - PIPE_HEIGHT))
         self.lastY = y
 
@@ -108,7 +108,7 @@ function PlayState:update(dt)
             score = score
         })
     end
-   
+
     if love.keyboard.wasPressed('p') then
         gStateMachine:change('pause')
     end
