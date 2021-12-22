@@ -4,6 +4,7 @@ require 'Paddle'
 require 'Ball'
 
 function CustomizationState:init()
+    cursor = '>>'
     row_selection = 1
     col_selection = 1
 
@@ -29,31 +30,31 @@ end
 
 function CustomizationState:update(dt)
 
-    if love.keyboard.wasPressed('up') then
-        if selection1 == 1 then
-            selection1 = 4
+    if love.keyboard.wasPressed('left') then
+        if col_selection == 1 then
+            col_selection = 2
         else
-            selection1 = selection1 - 1
+            col_selection = 1
         end
-    elseif love.keyboard.wasPressed('down') then
-        if selection1 == 4 then
-            selection1 = 1
+    elseif love.keyboard.wasPressed('right') then
+        if col_selection == 2 then
+            col_selection = 1
         else
-            selection1 = selection1 + 1
+            col_selection = 2
         end
     end
 
-    if love.keyboard.wasPressed('a') then
-        if selection2 == 1 then
-            selection2 = 4
+    if love.keyboard.wasPressed('up') then
+        if row_selection == 1 then
+            row_selection = 4
         else
-            selection2 = selection2 - 1
+            row_selection = row_selection - 1
         end
-    elseif love.keyboard.wasPressed('d') then
-        if selection2 == 4 then
-            selection2 = 1
+    elseif love.keyboard.wasPressed('down') then
+        if row_selection == 4 then
+            row_selection = 1
         else
-            selection2 = selection2 + 1
+            row_selection = row_selection + 1
         end
     end
 
@@ -75,6 +76,7 @@ function CustomizationState:render()
     love.graphics.setFont(smallFont)
     love.graphics.printf('Choose your ball shape!', 0, 65, VIRTUAL_WIDTH, 'center')
 
+    love.graphics.printf(cursor, 0, 95, VIRTUAL_WIDTH, 'center')
     round_ball:render()
     square_ball:render()
 

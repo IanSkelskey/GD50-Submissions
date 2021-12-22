@@ -60,6 +60,7 @@ require 'states/TrainingState'
 require 'states/ControlsState'
 require 'states/SettingsState'
 require 'states/CustomizationState'
+require 'states/DoneState'
 
 
 -- size of our actual window
@@ -185,6 +186,7 @@ function love.load()
         ['serve'] = function() return ServeState() end,
         ['training-serve'] = function() return TrainingServeState() end,
         ['training'] = function() return TrainingState() end,
+        ['done'] = function() return DoneState() end,
         ['controls'] = function() return ControlsState() end,
         ['settings'] = function() return SettingsState() end,
         ['customization'] = function() return CustomizationState() end
