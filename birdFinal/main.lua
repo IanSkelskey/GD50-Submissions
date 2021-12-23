@@ -5,9 +5,9 @@
     Author: Colton Ogden
     cogden@cs50.harvard.edu
 
-    A mobile game by Dong Nguyen that went viral in 2013, utilizing a very simple 
-    but effective gameplay mechanic of avoiding pipes indefinitely by just tapping 
-    the screen, making the player's bird avatar flap its wings and move upwards slightly. 
+    A mobile game by Dong Nguyen that went viral in 2013, utilizing a very simple
+    but effective gameplay mechanic of avoiding pipes indefinitely by just tapping
+    the screen, making the player's bird avatar flap its wings and move upwards slightly.
     A variant of popular games like "Helicopter Game" that floated around the internet
     for years prior. Illustrates some of the most basic procedural generation of game
     levels possible as by having pipes stick out of the ground by varying amounts, acting
@@ -39,6 +39,8 @@ require 'states/PlayState'
 require 'states/PauseState'
 require 'states/ScoreState'
 require 'states/TitleScreenState'
+require 'states/EnterHighScoreState'
+require 'states/HighScoreState'
 
 require 'Bird'
 require 'Pipe'
@@ -73,7 +75,7 @@ local BACKGROUND_LOOPING_POINT = 413
 function love.load()
     -- initialize our nearest-neighbor filter
     love.graphics.setDefaultFilter('nearest', 'nearest')
-    
+
     -- seed the RNG
     math.randomseed(os.time())
 
@@ -119,9 +121,13 @@ function love.load()
         ['countdown'] = function() return CountdownState() end,
         ['play'] = function() return PlayState() end,
         ['pause'] = function() return PauseState() end,
-        ['score'] = function() return ScoreState() end
+        ['score'] = function() return ScoreState() end,
+        ['high-scores'] = function() return HighScoreState() end,
+        ['enter-high-score'] = function() return EnterHighScoreState() end
     }
-    gStateMachine:change('title')
+    gStateMachine:change('title', {
+        highScores = loadHighScores()
+    })
 
     -- initialize input table
     love.keyboard.keysPressed = {}
@@ -132,6 +138,56 @@ end
 
 function love.resize(w, h)
     push:resize(w, h)
+end
+
+--[[
+    Loads high scores from a .lst file, saved in LÖVE2D's default save directory in a subfolder
+    called 'flappy'.
+]]
+function loadHighScores()
+    love.filesystem.setIdentity('flappy')
+
+    -- if the file doesn't exist, initialize it with some default scores
+    if not love.filesystem.getInfo('flappy.lst') then
+        local scores = ''
+        for i = 10, 1, -1 do
+            scores = scores .. 'CTO\n'
+            scores = scores .. tostring(i * 10) .. '\n'
+        end
+
+        love.filesystem.write('flappy.lst', scores)
+    end
+
+    -- flag for whether we're reading a name or not
+    local name = true
+    local currentName = nil
+    local counter = 1
+
+    -- initialize scores table with at least 10 blank entries
+    local scores = {}
+
+    for i = 1, 10 do
+        -- blank table; each will hold a name and a score
+        scores[i] = {
+            name = nil,
+            score = nil
+        }
+    end
+
+    -- iterate over each line in the file, filling in names and scores
+    for line in love.filesystem.lines('flappy.lst') do
+        if name then
+            scores[counter].name = string.sub(line, 1, 3)
+        else
+            scores[counter].score = tonumber(line)
+            counter = counter + 1
+        end
+
+        -- flip the name flag
+        name = not name
+    end
+
+    return scores
 end
 
 function love.keypressed(key)

@@ -13,6 +13,11 @@ CountdownState = Class{__includes = BaseState}
 -- takes 1 second to count down each time
 COUNTDOWN_TIME = 0.75
 
+function CountdownState:enter(params)
+    self.highScores = params.highScores
+    self.score = params.score
+end
+
 function CountdownState:init()
     sounds['count']:play()
     if fromStart then
@@ -47,7 +52,10 @@ function CountdownState:update(dt)
         -- when 0 is reached, we should enter the PlayState
         if self.count == 0 then
 
-            gStateMachine:change('play')
+            gStateMachine:change('play', {
+              highScores = self.highScores,
+              score = self.score
+            })
         end
     end
 end
@@ -57,6 +65,8 @@ function CountdownState:render()
         for k, pair in pairs(pipePairs) do
             pair:render()
         end
+
+
         love.graphics.setFont(flappyFont)
         love.graphics.print('Score: ' .. tostring(score), 8, 8)
         bird:render()

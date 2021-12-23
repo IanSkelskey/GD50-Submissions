@@ -26,13 +26,43 @@ function ScoreState:init()
 end
 
 function ScoreState:enter(params)
-    score = params.score
+    self.score = params.score
+    self.highScores = params.highScores
 end
 
 function ScoreState:update(dt)
     -- go back to play if enter is pressed
     if love.keyboard.wasPressed('enter') or love.keyboard.wasPressed('return') then
-        gStateMachine:change('countdown')
+      -- see if score is higher than any in the high scores table
+      local highScore = false
+
+      -- keep track of what high score ours overwrites, if any
+      local scoreIndex = 11
+
+      for i = 10, 1, -1 do
+          local score = self.highScores[i].score or 0
+          if self.score > score then
+              highScoreIndex = i
+              highScore = true
+          end
+      end
+
+      if highScore then
+          --gSounds['high-score']:play()
+          gStateMachine:change('enter-high-score', {
+              highScores = self.highScores,
+              score = self.score,
+              scoreIndex = highScoreIndex
+          })
+      else
+          gStateMachine:change('title', {
+              highScores = self.highScores
+          })
+      end
+
+      if love.keyboard.wasPressed('escape') then
+      love.event.quit()
+      end
     end
 end
 

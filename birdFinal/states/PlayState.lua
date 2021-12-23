@@ -17,13 +17,17 @@ PIPE_HEIGHT = 288
 BIRD_WIDTH = 38
 BIRD_HEIGHT = 24
 
+function PlayState:enter(params)
+    self.highScores = params.highScores
+    self.score = params.score
+end
+
 function PlayState:init()
     sounds['music']:play()
 
+    score = 100
     self.timer = 0
-    if fromStart then
-        score = 0
-    end
+
 
     -- initialize our last recorded Y value for a gap placement to base other gaps off of
     self.lastY = -PIPE_HEIGHT + math.random(80) + 20
@@ -90,7 +94,8 @@ function PlayState:update(dt)
                 sounds['hurt']:play()
 
                 gStateMachine:change('score', {
-                    score = score
+                    score = score,
+                    highScores = self.highScores
                 })
             end
         end
@@ -105,7 +110,8 @@ function PlayState:update(dt)
         sounds['hurt']:play()
 
         gStateMachine:change('score', {
-            score = score
+            score = score,
+            highScores = self.highScores
         })
     end
 
@@ -118,6 +124,10 @@ end
 function PlayState:render()
     for k, pair in pairs(pipePairs) do
         pair:render()
+    end
+
+    if self.highScores == nil then
+      love.graphics.print('high score table is nil...', 50, 70)
     end
 
     love.graphics.setFont(flappyFont)

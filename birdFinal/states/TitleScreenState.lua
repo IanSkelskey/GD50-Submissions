@@ -9,14 +9,27 @@
 
 TitleScreenState = Class{__includes = BaseState}
 
+function TitleScreenState:enter(params)
+    self.highScores = params.highScores
+    self.score = 0
+end
+
 function TitleScreenState:update(dt)
     -- transition to countdown when enter/return are pressed
     if love.keyboard.wasPressed('enter') or love.keyboard.wasPressed('return') then
-        gStateMachine:change('countdown')
+        gStateMachine:change('countdown', {
+          highScores = self.highScores,
+          score = self.score
+        })
     end
 end
 
 function TitleScreenState:render()
+
+  function PlayState:enter(params)
+      self.highScores = params.highScores
+  end
+
     -- simple UI code
     love.graphics.setFont(flappyFont)
     love.graphics.printf('Fifty Bird', 0, 64, VIRTUAL_WIDTH, 'center')
