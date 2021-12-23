@@ -25,7 +25,6 @@ end
 function PlayState:init()
     sounds['music']:play()
 
-    score = 100
     self.timer = 0
 
 
