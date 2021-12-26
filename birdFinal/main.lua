@@ -98,6 +98,7 @@ function love.load()
         ['pause'] = love.audio.newSource('pause.wav', 'static'),
         ['count'] = love.audio.newSource('countTick.wav', 'static'),
         ['go'] = love.audio.newSource('countGo.wav', 'static'),
+        ['select'] = love.audio.newSource('select.wav', 'static'),
 
         -- https://freesound.org/people/xsgianni/sounds/388079/
         ['music'] = love.audio.newSource('marios_way.mp3', 'static')

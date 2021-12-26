@@ -18,8 +18,8 @@ end
 
 function HighScoreState:update(dt)
     -- return to the start screen if we press escape
-    if love.keyboard.wasPressed('escape') then
-        gSounds['wall-hit']:play()
+    if love.keyboard.wasPressed('backspace') then
+        sounds['count']:play()
 
         gStateMachine:change('title', {
             highScores = self.highScores
@@ -52,6 +52,6 @@ function HighScoreState:render()
     end
 
     love.graphics.setFont(smallFont)
-    love.graphics.printf("Press Escape to return to the main menu!",
-        0, VIRTUAL_HEIGHT - 18, VIRTUAL_WIDTH, 'center')
+    love.graphics.printf("Press Backspace to return to the main menu!",
+        0, VIRTUAL_HEIGHT - 40, VIRTUAL_WIDTH, 'center')
 end

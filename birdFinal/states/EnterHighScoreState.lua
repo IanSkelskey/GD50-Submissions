@@ -62,10 +62,10 @@ function EnterHighScoreState:update(dt)
     -- scroll through character slots
     if love.keyboard.wasPressed('left') and highlightedChar > 1 then
         highlightedChar = highlightedChar - 1
-        --gSounds['select']:play()
+        sounds['select']:play()
     elseif love.keyboard.wasPressed('right') and highlightedChar < 3 then
         highlightedChar = highlightedChar + 1
-        --gSounds['select']:play()
+        sounds['select']:play()
     end
 
     -- scroll through characters
@@ -87,30 +87,34 @@ function EnterHighScoreState:render()
     love.graphics.printf('Your score: ' .. tostring(self.score), 0, 30,
         VIRTUAL_WIDTH, 'center')
 
+    love.graphics.setFont(smallFont)
+    love.graphics.printf('Enter your name!', 0, 50,
+        VIRTUAL_WIDTH, 'center')
+
     love.graphics.setFont(mediumFont)
 
     --
     -- render all three characters of the name
     --
     if highlightedChar == 1 then
-        love.graphics.setColor(103/255, 255/255, 255/255, 255/255)
+        love.graphics.setColor(255/255, 100/255, 100/255, 255/255)
     end
-    love.graphics.print(string.char(chars[1]), VIRTUAL_WIDTH / 2 - 28, VIRTUAL_HEIGHT / 2)
+    love.graphics.print(string.char(chars[1]), VIRTUAL_WIDTH / 2 - 24, VIRTUAL_HEIGHT / 2)
     love.graphics.setColor(255/255, 255/255, 255/255, 255/255)
 
     if highlightedChar == 2 then
-        love.graphics.setColor(103/255, 255/255, 255/255, 255/255)
+        love.graphics.setColor(255/255, 100/255, 100/255, 255/255)
     end
     love.graphics.print(string.char(chars[2]), VIRTUAL_WIDTH / 2 - 6, VIRTUAL_HEIGHT / 2)
     love.graphics.setColor(255/255, 255/255, 255/255, 255/255)
 
     if highlightedChar == 3 then
-        love.graphics.setColor(103/255, 255/255, 255/255, 255/255)
+        love.graphics.setColor(255/255, 100/255, 100/255, 255/255)
     end
-    love.graphics.print(string.char(chars[3]), VIRTUAL_WIDTH / 2 + 20, VIRTUAL_HEIGHT / 2)
+    love.graphics.print(string.char(chars[3]), VIRTUAL_WIDTH / 2 + 16, VIRTUAL_HEIGHT / 2)
     love.graphics.setColor(255/255, 255/255, 255/255, 255/255)
 
     love.graphics.setFont(smallFont)
-    love.graphics.printf('Press Enter to confirm!', 0, VIRTUAL_HEIGHT - 18,
+    love.graphics.printf('Press Enter to confirm!', 0, VIRTUAL_HEIGHT - 44,
         VIRTUAL_WIDTH, 'center')
 end
