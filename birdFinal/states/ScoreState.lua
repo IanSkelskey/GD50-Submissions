@@ -28,24 +28,27 @@ end
 function ScoreState:enter(params)
     self.score = params.score
     self.highScores = params.highScores
+
+
+
+    -- keep track of what high score ours overwrites, if any
+    local scoreIndex = 11
+
+    highScore = false
+    -- see if score is higher than any in the high scores table
+    for i = 10, 1, -1 do
+        local score = self.highScores[i].score or 0
+        if self.score > score then
+            highScoreIndex = i
+            highScore = true
+        end
+    end
+
 end
 
 function ScoreState:update(dt)
     -- go back to play if enter is pressed
     if love.keyboard.wasPressed('enter') or love.keyboard.wasPressed('return') then
-      -- see if score is higher than any in the high scores table
-      local highScore = false
-
-      -- keep track of what high score ours overwrites, if any
-      local scoreIndex = 11
-
-      for i = 10, 1, -1 do
-          local score = self.highScores[i].score or 0
-          if self.score > score then
-              highScoreIndex = i
-              highScore = true
-          end
-      end
 
       if highScore then
           --gSounds['high-score']:play()
@@ -100,7 +103,12 @@ function ScoreState:render()
 
     love.graphics.setFont(mediumFont)
     love.graphics.printf('Score: ' .. tostring(score), 0, VIRTUAL_HEIGHT - 112, VIRTUAL_WIDTH, 'center')
-    love.graphics.printf('Press Enter to Play Again!', 0, VIRTUAL_HEIGHT - 48, VIRTUAL_WIDTH, 'center')
+    if highScore then
+      love.graphics.printf('You made it on the leaderboards!', 0, VIRTUAL_HEIGHT - 64, VIRTUAL_WIDTH, 'center')
+      love.graphics.printf('Press Enter to add your name!', 0, VIRTUAL_HEIGHT - 44, VIRTUAL_WIDTH, 'center')
+    else
+      love.graphics.printf('Press Enter to Play Again!', 0, VIRTUAL_HEIGHT - 44, VIRTUAL_WIDTH, 'center')
+    end
 end
 
 function ScoreState:exit()

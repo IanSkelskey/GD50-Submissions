@@ -25,8 +25,7 @@ end
 function PlayState:init()
     sounds['music']:play()
 
-    score = 2001
-  
+    score = 201
     self.timer = 0
 
     -- initialize our last recorded Y value for a gap placement to base other gaps off of
