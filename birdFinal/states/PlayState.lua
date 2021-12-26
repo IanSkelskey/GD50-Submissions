@@ -19,14 +19,14 @@ BIRD_HEIGHT = 24
 
 function PlayState:enter(params)
     self.highScores = params.highScores
-    self.score = params.score
+    score = params.score
 end
 
 function PlayState:init()
     sounds['music']:play()
 
-    self.timer = 0
     score = 101
+    self.timer = 0
 
     -- initialize our last recorded Y value for a gap placement to base other gaps off of
     self.lastY = -PIPE_HEIGHT + math.random(80) + 20
