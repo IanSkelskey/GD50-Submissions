@@ -152,8 +152,13 @@ function loadHighScores()
     if not love.filesystem.getInfo('flappy.lst') then
         local scores = ''
         for i = 10, 1, -1 do
+          if i % 2 == 0 then
             scores = scores .. 'CTO\n'
             scores = scores .. tostring(i * 10) .. '\n'
+          else
+            scores = scores .. 'IAS\n'
+            scores = scores .. tostring(i * 10) .. '\n'
+          end
         end
 
         love.filesystem.write('flappy.lst', scores)
