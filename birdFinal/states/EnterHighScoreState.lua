@@ -4,8 +4,8 @@
 
     -- EnterHighScoreState Class --
 
-    Author: Colton Ogden
-    cogden@cs50.harvard.edu
+    Author: Colton Ogden, Ian Skelskey
+    cogden@cs50.harvard.edu, iskelske@asu.edu
 
     Screen that allows us to input a new high score in the form of three characters, arcade-style.
 ]]
@@ -14,9 +14,9 @@ EnterHighScoreState = Class{__includes = BaseState}
 
 -- individual chars of our string
 local chars = {
-    [1] = 65/255,
-    [2] = 65/255,
-    [3] = 65/255
+    [1] = 65, -- a
+    [2] = 83, -- s
+    [3] = 83  -- s
 }
 
 -- char we're currently changing

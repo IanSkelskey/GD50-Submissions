@@ -5,7 +5,7 @@
     -- HighScoreState Class --
 
     Author: Colton Ogden, Ian Skelskey
-    cogden@cs50.harvard.edu, iskelskey@txcc.commnet.edu
+    cogden@cs50.harvard.edu, iskelske@asu.edu
 
     Represents the screen where we can view all high scores previously recorded.
 ]]

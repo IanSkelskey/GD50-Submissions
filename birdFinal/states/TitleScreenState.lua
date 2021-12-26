@@ -11,7 +11,7 @@ TitleScreenState = Class{__includes = BaseState}
 
 function TitleScreenState:enter(params)
     self.highScores = params.highScores
-    self.score = 0
+    score = 0
     self.selection = 0
 end
 

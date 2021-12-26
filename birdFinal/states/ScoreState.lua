@@ -59,7 +59,8 @@ function ScoreState:update(dt)
           })
       else
           gStateMachine:change('title', {
-              highScores = self.highScores
+              highScores = self.highScores,
+              score = 0
           })
       end
 
