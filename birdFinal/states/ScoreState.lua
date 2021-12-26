@@ -14,11 +14,11 @@ ScoreState = Class{__includes = BaseState}
     When we enter the score state, we expect to receive the score
     from the play state so we know what to render to the State.
 ]]
-local DIAMOND_IMAGE = love.graphics.newImage('diamond.png')
-local PLATINUM_IMAGE = love.graphics.newImage('platinum.png')
-local GOLD_IMAGE = love.graphics.newImage('gold.png')
-local SILVER_IMAGE = love.graphics.newImage('silver.png')
-local BRONZE_IMAGE = love.graphics.newImage('bronze.png')
+local DIAMOND_IMAGE = love.graphics.newImage('images/diamond.png')
+local PLATINUM_IMAGE = love.graphics.newImage('images/platinum.png')
+local GOLD_IMAGE = love.graphics.newImage('images/gold.png')
+local SILVER_IMAGE = love.graphics.newImage('images/silver.png')
+local BRONZE_IMAGE = love.graphics.newImage('images/bronze.png')
 
 function ScoreState:init()
     fromStart = true
