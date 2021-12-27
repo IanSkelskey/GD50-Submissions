@@ -26,7 +26,7 @@ function Board:initializeTiles()
     self.tiles = {}
 
     for tileY = 1, 8 do
-        
+
         -- empty table that will serve as a new row
         table.insert(self.tiles, {})
 
@@ -54,7 +54,7 @@ end
 
 --[[
     Goes left to right, top to bottom in the board, calculating matches by counting consecutive
-    tiles of the same color. Doesn't need to check the last tile in every row or column if the 
+    tiles of the same color. Doesn't need to check the last tile in every row or column if the
     last two haven't been a match.
 ]]
 function Board:calculateMatches()
@@ -70,15 +70,15 @@ function Board:calculateMatches()
         matchNum = 1
 
         local hasShiny = false
-        
+
         -- every horizontal tile
         for x = 2, 8 do
-            
+
             -- if this is the same color as the one we're trying to match...
             if self.tiles[y][x].color == colorToMatch then
                 matchNum = matchNum + 1
             else
-                
+
                 -- set this as the new color we want to watch for
                 colorToMatch = self.tiles[y][x].color
 
@@ -102,7 +102,7 @@ function Board:calculateMatches()
                     else
                         -- go backwards from here by matchNum
                         for x2 = x - 1, x - matchNum, -1 do
-                        
+
                             -- add each tile to the match that's in that match
                             table.insert(match, self.tiles[y][x2])
                         end
@@ -124,7 +124,7 @@ function Board:calculateMatches()
         -- account for the last row ending with a match
         if matchNum >= 3 then
             local match = {}
-            
+
             -- find shinies
             for x = 8, 8 - matchNum + 1, -1 do
                 if self.tiles[y][x].isShiny then
@@ -132,7 +132,7 @@ function Board:calculateMatches()
                     break
                 end
             end
-            
+
             if hasShiny then
                 for i = 1, 8 do
                     table.insert(match, self.tiles[y][i])
@@ -196,7 +196,7 @@ function Board:calculateMatches()
         -- account for the last column ending with a match
         if matchNum >= 3 then
             local match = {}
-            
+
             for y = 8, 8 - matchNum + 1, -1 do
                 if self.tiles[y][x].isShiny then
                     hasShiny = true
@@ -323,8 +323,8 @@ function Board:checkPotential()
                         hasPotential = true
                     end
 				else
-				    if self.tiles[tile.gridY][tile.gridX - 2].color == tile.color or self.tiles[tile.gridY - 1][tile.gridX - 1].color == tile.color or 
-							self.tiles[tile.gridY + 1][tile.gridX - 1].color == tile.color or self.tiles[tile.gridY][tile.gridX + 3].color == tile.color or 
+				    if self.tiles[tile.gridY][tile.gridX - 2].color == tile.color or self.tiles[tile.gridY - 1][tile.gridX - 1].color == tile.color or
+							self.tiles[tile.gridY + 1][tile.gridX - 1].color == tile.color or self.tiles[tile.gridY][tile.gridX + 3].color == tile.color or
 									self.tiles[tile.gridY - 1][tile.gridX + 2].color == tile.color or self.tiles[tile.gridY + 1][tile.gridX + 2].color == tile.color then
 					    hasPotential = true
 				    end
@@ -370,15 +370,15 @@ function Board:getFallingTiles()
 
         local y = 8
         while y >= 1 do
-            
+
             -- if our last tile was a space...
             local tile = self.tiles[y][x]
-            
+
             if space then
-                
+
                 -- if the current tile is *not* a space, bring this down to the lowest space
                 if tile then
-                    
+
                     -- put the tile in the correct spot in the board and fix its grid positions
                     self.tiles[spaceY][x] = tile
                     tile.gridY = spaceY
@@ -400,7 +400,7 @@ function Board:getFallingTiles()
                 end
             elseif tile == nil then
                 space = true
-                
+
                 -- if we haven't assigned a space yet, set this to it
                 if spaceY == 0 then
                     spaceY = y
