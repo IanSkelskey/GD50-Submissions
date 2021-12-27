@@ -74,7 +74,7 @@ VIRTUAL_HEIGHT = 243
 -- paddle movement speed
 PADDLE_SPEED = 200
 
-MASTER_VOLUME = .05
+MASTER_VOLUME = 1
 
 -- initialize our player paddles; make them global so that they can be
 -- detected by other functions and modules
@@ -147,7 +147,7 @@ function love.load()
 
     music = {
         ['intro-chord'] = love.audio.newSource('music/intro-chord.wav', 'static'),
-        ['bass-loop'] = love.audio.newSource('music/bass-loop.wav', 'static')
+        ['bass-loop'] = love.audio.newSource('music/bass vibes.wav', 'static')
 	}
 
     sounds['paddle_hit']:setVolume(MASTER_VOLUME)
