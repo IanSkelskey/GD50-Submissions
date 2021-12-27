@@ -46,9 +46,17 @@ require 'Bird'
 require 'Pipe'
 require 'PipePair'
 
+-- Constant to track OS
+OS = love.system.getOS()
+
 -- physical screen dimensions
-WINDOW_WIDTH = 1280
-WINDOW_HEIGHT = 720
+if OS == "Android" then
+  WINDOW_WIDTH = 640
+  WINDOW_HEIGHT = 360
+else
+  WINDOW_WIDTH = 1280
+  WINDOW_HEIGHT = 720
+end
 
 -- virtual resolution dimensions
 VIRTUAL_WIDTH = 512
@@ -60,6 +68,8 @@ score = 0
 bird = Bird()
 pipePairs = {}
 mute = false
+
+
 
 local background = love.graphics.newImage('images/background.png')
 local backgroundScroll = 0
@@ -146,6 +156,7 @@ end
     called 'flappy'.
 ]]
 function loadHighScores()
+  if OS ~= "Android" then
     love.filesystem.setIdentity('flappy')
 
     -- if the file doesn't exist, initialize it with some default scores
@@ -194,6 +205,7 @@ function loadHighScores()
     end
 
     return scores
+  end
 end
 
 function love.keypressed(key)

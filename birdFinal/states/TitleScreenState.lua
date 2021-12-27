@@ -17,7 +17,7 @@ end
 
 function TitleScreenState:update(dt)
     -- transition to countdown when enter/return are pressed
-    if love.keyboard.wasPressed('enter') or love.keyboard.wasPressed('return') then
+    if love.keyboard.wasPressed('enter') or love.keyboard.wasPressed('return') or love.mouse.wasPressed(1) then
       sounds['pause']:play()
       if self.selection == 0 then
         gStateMachine:change('countdown', {
