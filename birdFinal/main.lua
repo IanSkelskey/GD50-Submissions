@@ -118,6 +118,7 @@ function love.load()
 
     sounds['music']:setLooping(true)
     sounds['music']:play()
+    sounds['music']:setVolume(0)
 
     -- initialize our virtual resolution
     push:setupScreen(VIRTUAL_WIDTH, VIRTUAL_HEIGHT, WINDOW_WIDTH, WINDOW_HEIGHT, {
