@@ -74,7 +74,7 @@ VIRTUAL_HEIGHT = 243
 -- paddle movement speed
 PADDLE_SPEED = 200
 
-MASTER_VOLUME = 0
+MASTER_VOLUME = 1
 
 -- initialize our player paddles; make them global so that they can be
 -- detected by other functions and modules
