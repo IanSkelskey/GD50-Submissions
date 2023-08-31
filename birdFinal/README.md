@@ -1,5 +1,7 @@
 # Flappy Bird 🐦
 
+<iframe width="560" height="315" src="https://www.youtube.com/embed/WDggad8ArJ8?si=RbVcu5PCDSOiigHf" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>
+
 ## Project Description 📚
 Flappy Bird is a side-scrolling mobile game featuring 2D retro-style graphics. The objective is to direct a flying bird between sets of pipes without hitting them. In this project, the main objectives are to understand the Flappy Bird source code, influence pipe generation for more complicated levels, award medals based on performance, and implement a pause feature. The code base is built using the LÖVE 2D game framework.
 
