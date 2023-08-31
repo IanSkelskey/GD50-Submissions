@@ -1,5 +1,7 @@
 # Pong 🏓
 
+[![Screencast link](https://img.youtube.com/vi/RxwTPHQn6Cc/0.jpg)](https://www.youtube.com/watch?v=RxwTPHQn6Cc)
+
 ## Project Description 📚
 Pong is one of the earliest arcade video games, simulating table tennis. In this project, the primary objectives are to understand the Pong source code and implement a basic AI for either Player 1 or Player 2. The code base is built using the LÖVE 2D game framework.
 
