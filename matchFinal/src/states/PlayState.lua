@@ -14,13 +14,13 @@
     until they exceed the number of points needed to get to the next level
     or until the time runs out, at which point they are brought back to the
     main menu or the score entry menu if they made the top 10.
-]]
-
-PlayState = Class{__includes = BaseState}
+]] PlayState = Class {
+    __includes = BaseState
+}
 
 function PlayState:init()
     -- start our transition alpha at full, so we fade in
-    self.transitionAlpha = 255/255
+    self.transitionAlpha = 255 / 255
 
     -- position in the grid which we're highlighting
     self.boardHighlightX = 0
@@ -59,7 +59,7 @@ function PlayState:enter(params)
     self.level = params.level
 
     -- spawn a board and place it toward the right
-    self.board = params.board or Board(VIRTUAL_WIDTH - 272, 16)
+    self.board = params.board or Board(VIRTUAL_WIDTH - 272, 16, self.level)
 
     -- grab score from params if it was passed
     self.score = params.score or 0
@@ -117,6 +117,21 @@ function PlayState:update(dt)
             gSounds['select']:play()
         end
 
+        if love.keyboard.wasPressed('s') then
+            -- clear timers from prior PlayStates
+            -- always clear before you change state, else next state's timers
+            -- will also clear!
+            Timer.clear()
+
+            gSounds['next-level']:play()
+
+            -- change to begin game state with new level (incremented)
+            gStateMachine:change('begin-game', {
+                level = self.level + 1,
+                score = self.score
+            })
+        end
+
         -- if we've pressed enter, to select or deselect a tile...
         if love.keyboard.wasPressed('enter') or love.keyboard.wasPressed('return') then
             -- if same tile as currently highlighted, deselect
@@ -127,12 +142,12 @@ function PlayState:update(dt)
             if not self.highlightedTile then
                 self.highlightedTile = self.board.tiles[y][x]
 
-            -- if we select the position already highlighted, remove highlight
+                -- if we select the position already highlighted, remove highlight
             elseif self.highlightedTile == self.board.tiles[y][x] then
                 self.highlightedTile = nil
 
-            -- if the difference between X and Y combined of this highlighted tile
-            -- vs the previous is not equal to 1, also remove highlight
+                -- if the difference between X and Y combined of this highlighted tile
+                -- vs the previous is not equal to 1, also remove highlight
             elseif math.abs(self.highlightedTile.gridX - x) + math.abs(self.highlightedTile.gridY - y) > 1 then
                 gSounds['error']:play()
                 self.highlightedTile = nil
@@ -149,17 +164,21 @@ function PlayState:update(dt)
                 newTile.gridY = tempY
 
                 -- swap tiles in the tiles table
-                self.board.tiles[self.highlightedTile.gridY][self.highlightedTile.gridX] =
-                    self.highlightedTile
+                self.board.tiles[self.highlightedTile.gridY][self.highlightedTile.gridX] = self.highlightedTile
 
                 self.board.tiles[newTile.gridY][newTile.gridX] = newTile
 
                 -- tween coordinates between the two so they swap
                 Timer.tween(0.1, {
-                    [self.highlightedTile] = {x = newTile.x, y = newTile.y},
-                    [newTile] = {x = self.highlightedTile.x, y = self.highlightedTile.y}
-                })
-                -- once the swap is finished, we can tween falling blocks as needed
+                    [self.highlightedTile] = {
+                        x = newTile.x,
+                        y = newTile.y
+                    },
+                    [newTile] = {
+                        x = self.highlightedTile.x,
+                        y = self.highlightedTile.y
+                    }
+                }) -- once the swap is finished, we can tween falling blocks as needed
                 :finish(function()
                     self:calculateMatches()
                 end)
@@ -210,7 +229,7 @@ function PlayState:calculateMatches()
                 self:calculateMatches()
             end)
         end)
-    -- if no matches, we can continue playing
+        -- if no matches, we can continue playing
     else
         self.canInput = true
     end
@@ -225,7 +244,7 @@ function PlayState:render()
         -- multiply so drawing white rect makes it brighter
         love.graphics.setBlendMode('add')
 
-        love.graphics.setColor(255/255, 255/255, 255/255, 96/255)
+        love.graphics.setColor(255 / 255, 255 / 255, 255 / 255, 96 / 255)
         love.graphics.rectangle('fill', (self.highlightedTile.gridX - 1) * 32 + (VIRTUAL_WIDTH - 272),
             (self.highlightedTile.gridY - 1) * 32 + 16, 32, 32, 4)
 
@@ -235,21 +254,21 @@ function PlayState:render()
 
     -- render highlight rect color based on timer
     if self.rectHighlighted then
-        love.graphics.setColor(217/255, 87/255, 99/255, 255/255)
+        love.graphics.setColor(217 / 255, 87 / 255, 99 / 255, 255 / 255)
     else
-        love.graphics.setColor(172/255, 50/255, 50/255, 255/255)
+        love.graphics.setColor(172 / 255, 50 / 255, 50 / 255, 255 / 255)
     end
 
     -- draw actual cursor rect
     love.graphics.setLineWidth(4)
-    love.graphics.rectangle('line', self.boardHighlightX * 32 + (VIRTUAL_WIDTH - 272),
-        self.boardHighlightY * 32 + 16, 32, 32, 4)
+    love.graphics.rectangle('line', self.boardHighlightX * 32 + (VIRTUAL_WIDTH - 272), self.boardHighlightY * 32 + 16,
+        32, 32, 4)
 
     -- GUI text
-    love.graphics.setColor(56/255, 56/255, 56/255, 234/255)
+    love.graphics.setColor(56 / 255, 56 / 255, 56 / 255, 234 / 255)
     love.graphics.rectangle('fill', 16, 16, 186, 116, 4)
 
-    love.graphics.setColor(99/255, 155/255, 255/255, 255/255)
+    love.graphics.setColor(99 / 255, 155 / 255, 255 / 255, 255 / 255)
     love.graphics.setFont(gFonts['medium'])
     love.graphics.printf('Level: ' .. tostring(self.level), 20, 24, 182, 'center')
     love.graphics.printf('Score: ' .. tostring(self.score), 20, 52, 182, 'center')
