@@ -8,8 +8,8 @@ Match-3 is a tile-matching puzzle game similar to renowned titles like Bejeweled
 ## Completion Checklist ✅
 - [x] Read and understand all source code
 - [x] Implemented time addition on matches
-- [x] Made Level 1 start with simple flat blocks
-- [x] Created shiny blocks that destroy an entire row on match
+- [ ] Made Level 1 start with simple flat blocks
+- [ ] Created shiny blocks that destroy an entire row on match
 - [ ] Enabled swapping only when it results in a match
 - [ ] (Optional) Implemented matching using the mouse
 
