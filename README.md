@@ -23,7 +23,7 @@ This repository contains my projects for Harvard University's CS50's Introductio
 - [ ] Assignment Submitted through Official Channels 📬
 
 ### Match 3 💎
-- [ ] Coding Assignment Completed
+- [x] Coding Assignment Completed
 - [ ] Screencast Published to YouTube 📹
 - [ ] Assignment Submitted through Official Channels 📬
 
