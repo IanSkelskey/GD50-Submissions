@@ -38,16 +38,16 @@ function PlayState:init()
     self.score = 0
     self.timer = 60
 
-    -- set our Timer class to turn cursor highlight on and off
+    self:initTimers()
+end
+
+function PlayState:initTimers()
     Timer.every(0.5, function()
         self.rectHighlighted = not self.rectHighlighted
     end)
 
-    -- subtract 1 from timer every second
     Timer.every(1, function()
         self.timer = self.timer - 1
-
-        -- play warning sound on timer if we get low
         if self.timer <= 5 then
             gSounds['clock']:play()
         end
@@ -69,9 +69,6 @@ function PlayState:enter(params)
 end
 
 function PlayState:update(dt)
-    if love.keyboard.wasPressed('escape') then
-        love.event.quit()
-    end
 
     -- go back to start if time runs out
     if self.timer <= 0 then
@@ -102,91 +99,99 @@ function PlayState:update(dt)
     end
 
     if self.canInput then
-        -- move cursor around based on bounds of grid, playing sounds
-        if love.keyboard.wasPressed('up') then
-            self.boardHighlightY = math.max(0, self.boardHighlightY - 1)
-            gSounds['select']:play()
-        elseif love.keyboard.wasPressed('down') then
-            self.boardHighlightY = math.min(7, self.boardHighlightY + 1)
-            gSounds['select']:play()
-        elseif love.keyboard.wasPressed('left') then
-            self.boardHighlightX = math.max(0, self.boardHighlightX - 1)
-            gSounds['select']:play()
-        elseif love.keyboard.wasPressed('right') then
-            self.boardHighlightX = math.min(7, self.boardHighlightX + 1)
-            gSounds['select']:play()
-        end
-
-        if love.keyboard.wasPressed('s') then
-            -- clear timers from prior PlayStates
-            -- always clear before you change state, else next state's timers
-            -- will also clear!
-            Timer.clear()
-
-            gSounds['next-level']:play()
-
-            -- change to begin game state with new level (incremented)
-            gStateMachine:change('begin-game', {
-                level = self.level + 1,
-                score = self.score
-            })
-        end
-
-        -- if we've pressed enter, to select or deselect a tile...
-        if love.keyboard.wasPressed('enter') or love.keyboard.wasPressed('return') then
-            -- if same tile as currently highlighted, deselect
-            local x = self.boardHighlightX + 1
-            local y = self.boardHighlightY + 1
-
-            -- if nothing is highlighted, highlight current tile
-            if not self.highlightedTile then
-                self.highlightedTile = self.board.tiles[y][x]
-
-                -- if we select the position already highlighted, remove highlight
-            elseif self.highlightedTile == self.board.tiles[y][x] then
-                self.highlightedTile = nil
-
-                -- if the difference between X and Y combined of this highlighted tile
-                -- vs the previous is not equal to 1, also remove highlight
-            elseif math.abs(self.highlightedTile.gridX - x) + math.abs(self.highlightedTile.gridY - y) > 1 then
-                gSounds['error']:play()
-                self.highlightedTile = nil
-            else
-                -- swap grid positions of tiles
-                local tempX = self.highlightedTile.gridX
-                local tempY = self.highlightedTile.gridY
-
-                local newTile = self.board.tiles[y][x]
-
-                self.highlightedTile.gridX = newTile.gridX
-                self.highlightedTile.gridY = newTile.gridY
-                newTile.gridX = tempX
-                newTile.gridY = tempY
-
-                -- swap tiles in the tiles table
-                self.board.tiles[self.highlightedTile.gridY][self.highlightedTile.gridX] = self.highlightedTile
-
-                self.board.tiles[newTile.gridY][newTile.gridX] = newTile
-
-                -- tween coordinates between the two so they swap
-                Timer.tween(0.1, {
-                    [self.highlightedTile] = {
-                        x = newTile.x,
-                        y = newTile.y
-                    },
-                    [newTile] = {
-                        x = self.highlightedTile.x,
-                        y = self.highlightedTile.y
-                    }
-                }) -- once the swap is finished, we can tween falling blocks as needed
-                :finish(function()
-                    self:calculateMatches()
-                end)
-            end
-        end
+        self:handleInput()
     end
 
     Timer.update(dt)
+end
+
+function PlayState:handleInput()
+    if love.keyboard.wasPressed('escape') then
+        love.event.quit()
+    end
+    
+    -- move cursor around based on bounds of grid, playing sounds
+    if love.keyboard.wasPressed('up') then
+        self.boardHighlightY = math.max(0, self.boardHighlightY - 1)
+        gSounds['select']:play()
+    elseif love.keyboard.wasPressed('down') then
+        self.boardHighlightY = math.min(7, self.boardHighlightY + 1)
+        gSounds['select']:play()
+    elseif love.keyboard.wasPressed('left') then
+        self.boardHighlightX = math.max(0, self.boardHighlightX - 1)
+        gSounds['select']:play()
+    elseif love.keyboard.wasPressed('right') then
+        self.boardHighlightX = math.min(7, self.boardHighlightX + 1)
+        gSounds['select']:play()
+    end
+
+    if love.keyboard.wasPressed('s') then
+        -- clear timers from prior PlayStates
+        -- always clear before you change state, else next state's timers
+        -- will also clear!
+        Timer.clear()
+
+        gSounds['next-level']:play()
+
+        -- change to begin game state with new level (incremented)
+        gStateMachine:change('begin-game', {
+            level = self.level + 1,
+            score = self.score
+        })
+    end
+
+    -- if we've pressed enter, to select or deselect a tile...
+    if love.keyboard.wasPressed('enter') or love.keyboard.wasPressed('return') then
+        -- if same tile as currently highlighted, deselect
+        local x = self.boardHighlightX + 1
+        local y = self.boardHighlightY + 1
+
+        -- if nothing is highlighted, highlight current tile
+        if not self.highlightedTile then
+            self.highlightedTile = self.board.tiles[y][x]
+
+            -- if we select the position already highlighted, remove highlight
+        elseif self.highlightedTile == self.board.tiles[y][x] then
+            self.highlightedTile = nil
+
+            -- if the difference between X and Y combined of this highlighted tile
+            -- vs the previous is not equal to 1, also remove highlight
+        elseif math.abs(self.highlightedTile.gridX - x) + math.abs(self.highlightedTile.gridY - y) > 1 then
+            gSounds['error']:play()
+            self.highlightedTile = nil
+        else
+            -- swap grid positions of tiles
+            local tempX = self.highlightedTile.gridX
+            local tempY = self.highlightedTile.gridY
+
+            local newTile = self.board.tiles[y][x]
+
+            self.highlightedTile.gridX = newTile.gridX
+            self.highlightedTile.gridY = newTile.gridY
+            newTile.gridX = tempX
+            newTile.gridY = tempY
+
+            -- swap tiles in the tiles table
+            self.board.tiles[self.highlightedTile.gridY][self.highlightedTile.gridX] = self.highlightedTile
+
+            self.board.tiles[newTile.gridY][newTile.gridX] = newTile
+
+            -- tween coordinates between the two so they swap
+            Timer.tween(0.1, {
+                [self.highlightedTile] = {
+                    x = newTile.x,
+                    y = newTile.y
+                },
+                [newTile] = {
+                    x = self.highlightedTile.x,
+                    y = self.highlightedTile.y
+                }
+            }) -- once the swap is finished, we can tween falling blocks as needed
+            :finish(function()
+                self:calculateMatches()
+            end)
+        end
+    end
 end
 
 --[[
