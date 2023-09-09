@@ -106,93 +106,112 @@ function PlayState:update(dt)
 end
 
 function PlayState:handleInput()
+    self:handleEscapeKey()
+    self:handleMovementKeys()
+    self:handleSkipLevelKey()
+    self:handleTileSelection()
+end
+
+function PlayState:handleEscapeKey()
     if love.keyboard.wasPressed('escape') then
         love.event.quit()
     end
-    
-    -- move cursor around based on bounds of grid, playing sounds
+end
+
+function PlayState:handleMovementKeys()
     if love.keyboard.wasPressed('up') then
-        self.boardHighlightY = math.max(0, self.boardHighlightY - 1)
-        gSounds['select']:play()
+        self:moveCursor(0, -1)
     elseif love.keyboard.wasPressed('down') then
-        self.boardHighlightY = math.min(7, self.boardHighlightY + 1)
-        gSounds['select']:play()
+        self:moveCursor(0, 1)
     elseif love.keyboard.wasPressed('left') then
-        self.boardHighlightX = math.max(0, self.boardHighlightX - 1)
-        gSounds['select']:play()
+        self:moveCursor(-1, 0)
     elseif love.keyboard.wasPressed('right') then
-        self.boardHighlightX = math.min(7, self.boardHighlightX + 1)
-        gSounds['select']:play()
+        self:moveCursor(1, 0)
     end
+end
 
+function PlayState:moveCursor(dx, dy)
+    self.boardHighlightX = math.max(0, math.min(7, self.boardHighlightX + dx))
+    self.boardHighlightY = math.max(0, math.min(7, self.boardHighlightY + dy))
+    gSounds['select']:play()
+end
+
+function PlayState:handleSkipLevelKey()
     if love.keyboard.wasPressed('s') then
-        -- clear timers from prior PlayStates
-        -- always clear before you change state, else next state's timers
-        -- will also clear!
         Timer.clear()
-
         gSounds['next-level']:play()
-
-        -- change to begin game state with new level (incremented)
         gStateMachine:change('begin-game', {
             level = self.level + 1,
             score = self.score
         })
     end
+end
 
-    -- if we've pressed enter, to select or deselect a tile...
+function PlayState:handleTileSelection()
     if love.keyboard.wasPressed('enter') or love.keyboard.wasPressed('return') then
-        -- if same tile as currently highlighted, deselect
         local x = self.boardHighlightX + 1
         local y = self.boardHighlightY + 1
 
-        -- if nothing is highlighted, highlight current tile
         if not self.highlightedTile then
             self.highlightedTile = self.board.tiles[y][x]
-
-            -- if we select the position already highlighted, remove highlight
         elseif self.highlightedTile == self.board.tiles[y][x] then
             self.highlightedTile = nil
-
-            -- if the difference between X and Y combined of this highlighted tile
-            -- vs the previous is not equal to 1, also remove highlight
         elseif math.abs(self.highlightedTile.gridX - x) + math.abs(self.highlightedTile.gridY - y) > 1 then
             gSounds['error']:play()
             self.highlightedTile = nil
         else
-            -- swap grid positions of tiles
-            local tempX = self.highlightedTile.gridX
-            local tempY = self.highlightedTile.gridY
-
-            local newTile = self.board.tiles[y][x]
-
-            self.highlightedTile.gridX = newTile.gridX
-            self.highlightedTile.gridY = newTile.gridY
-            newTile.gridX = tempX
-            newTile.gridY = tempY
-
-            -- swap tiles in the tiles table
-            self.board.tiles[self.highlightedTile.gridY][self.highlightedTile.gridX] = self.highlightedTile
-
-            self.board.tiles[newTile.gridY][newTile.gridX] = newTile
-
-            -- tween coordinates between the two so they swap
-            Timer.tween(0.1, {
-                [self.highlightedTile] = {
-                    x = newTile.x,
-                    y = newTile.y
-                },
-                [newTile] = {
-                    x = self.highlightedTile.x,
-                    y = self.highlightedTile.y
-                }
-            }) -- once the swap is finished, we can tween falling blocks as needed
-            :finish(function()
-                self:calculateMatches()
-            end)
+            self:swapTiles()
         end
     end
 end
+
+function PlayState:swapTiles()
+    local tempX = self.highlightedTile.gridX
+    local tempY = self.highlightedTile.gridY
+    local x = self.boardHighlightX + 1
+    local y = self.boardHighlightY + 1
+    local newTile = self.board.tiles[y][x]
+    local highlightedTile = self.highlightedTile  -- Store the highlighted tile
+
+    self.highlightedTile.gridX = newTile.gridX
+    self.highlightedTile.gridY = newTile.gridY
+    newTile.gridX = tempX
+    newTile.gridY = tempY
+
+    self.board.tiles[self.highlightedTile.gridY][self.highlightedTile.gridX] = self.highlightedTile
+    self.board.tiles[newTile.gridY][newTile.gridX] = newTile
+
+    Timer.tween(0.1, {
+        [self.highlightedTile] = {x = newTile.x, y = newTile.y},
+        [newTile] = {x = self.highlightedTile.x, y = self.highlightedTile.y}
+    }):finish(function()
+        local matches = self:calculateMatches()
+        if not matches then
+            self:swapBack(tempX, tempY, newTile, highlightedTile)  -- Pass the stored highlighted tile
+        end
+    end)
+end
+
+function PlayState:swapBack(tempX, tempY, newTile, highlightedTile)  -- Add highlightedTile as an argument
+    -- Swap the grid positions back
+    highlightedTile.gridX = tempX  -- Use the passed highlightedTile
+    highlightedTile.gridY = tempY
+    newTile.gridX = highlightedTile.gridX
+    newTile.gridY = highlightedTile.gridY
+
+    -- Swap the tiles back in the tiles table
+    self.board.tiles[highlightedTile.gridY][highlightedTile.gridX] = highlightedTile  -- Use the passed highlightedTile
+    self.board.tiles[newTile.gridY][newTile.gridX] = newTile
+
+    -- Tween the coordinates back
+    Timer.tween(0.1, {
+        [highlightedTile] = {x = newTile.x, y = newTile.y},  -- Use the passed highlightedTile
+        [newTile] = {x = highlightedTile.x, y = highlightedTile.y}
+    }):finish(function()
+        self.canInput = true
+    end)
+end
+
 
 --[[
     Calculates whether any matches were found on the board and tweens the needed
