@@ -20,178 +20,127 @@ function Board:init(x, y, level)
     self:initializeTiles()
 end
 
+-- Initialize tiles on the board
 function Board:initializeTiles()
     self.tiles = {}
-
     for y = 1, 8 do
-
-        -- empty table that will serve as a new row
-        table.insert(self.tiles, {})
-
+        self.tiles[y] = {}
         for x = 1, 8 do
-            -- generate random colors and varieties based on the level
-            local color = math.random(18)
-
-            -- Choose variety based on the level
-            local variety = 1
-            if self.level > 1 then
-                -- Get the minimum value between self.level and 6
-
-                local varietyLimit = math.min(self.level, 6)
-
-                variety = math.random(1, varietyLimit) -- Change as per your discretion
-            end
-
-            -- create a new tile at X, Y with that color and variety
-            table.insert(self.tiles[y], Tile(x, y, color, variety))
+            self.tiles[y][x] = self:createRandomTile(x, y)
         end
     end
+    self:removeInitialMatches()
+end
 
-    while self:calculateMatches() do
-        -- recursively initialize if matches were returned so we always have
-        -- a matchless board on start
+-- Create a random tile
+function Board:createRandomTile(x, y)
+    local color = math.random(18)
+    local variety = math.min(self.level, 6)
+    return Tile(x, y, color, variety)
+end
+
+-- Remove initial matches
+function Board:removeInitialMatches()
+    if self:calculateMatches() then
         self:initializeTiles()
     end
 end
 
---[[
-    Goes left to right, top to bottom in the board, calculating matches by counting consecutive
-    tiles of the same color. Doesn't need to check the last tile in every row or column if the 
-    last two haven't been a match.
-]]
+-- Calculate matches on the board
 function Board:calculateMatches()
-    local matches = {}
-    local matchNum = 1
-
-    -- Horizontal matches
-    for y = 1, 8 do
-        local colorToMatch = self.tiles[y][1].color
-        matchNum = 1
-        for x = 2, 8 do
-            if self.tiles[y][x].color == colorToMatch then
-                matchNum = matchNum + 1
-            else
-                colorToMatch = self.tiles[y][x].color
-
-                if matchNum >= 3 then
-                    local match = {}
-                    match.matchType = "horizontal"
-                    for x2 = x - 1, x - matchNum, -1 do
-                        table.insert(match, self.tiles[y][x2])
-                    end
-
-                    local containsShiny = false
-                    for _, tile in pairs(match) do
-                        if tile.shiny then
-                            containsShiny = true
-                            break
-                        end
-                    end
-
-                    if containsShiny then
-                        for col = 1, 8 do
-                            table.insert(match, self.tiles[y][col])
-                        end
-                        
-                    end
-
-                    table.insert(matches, match)
-                end
-
-                if x >= 7 then
-                    break
-                end
-
-                matchNum = 1
-            end
-        end
-
-        if matchNum >= 3 then
-            local match = {}
-            for x = 8, 8 - matchNum + 1, -1 do
-                table.insert(match, self.tiles[y][x])
-            end
-
-            table.insert(matches, match)
-        end
-    end
-
-    -- Vertical matches
-    for x = 1, 8 do
-        local colorToMatch = self.tiles[1][x].color
-
-        matchNum = 1
-
-        for y = 2, 8 do
-            if self.tiles[y][x].color == colorToMatch then
-                matchNum = matchNum + 1
-            else
-                colorToMatch = self.tiles[y][x].color
-
-                if matchNum >= 3 then
-                    local match = {}
-                    match.matchType = "vertical"
-                    for y2 = y - 1, y - matchNum, -1 do
-                        table.insert(match, self.tiles[y2][x])
-                    end
-
-                    local containsShiny = false
-                    for _, tile in pairs(match) do
-                        if tile.shiny then
-                            containsShiny = true
-                            break
-                        end
-                    end
-
-                    if containsShiny then
-                        for row = 1, 8 do
-                            table.insert(match, self.tiles[row][x])
-                        end
-                        
-                    end
-
-                    table.insert(matches, match)
-                end
-
-                matchNum = 1
-
-                if y >= 7 then
-                    break
-                end
-            end
-        end
-
-        if matchNum >= 3 then
-            local match = {}
-            for y = 8, 8 - matchNum, -1 do
-                table.insert(match, self.tiles[y][x])
-            end
-
-            table.insert(matches, match)
-        end
-    end
-
-    self.matches = matches
-
+    self.matches = {}
+    self:findMatches("horizontal")
+    self:findMatches("vertical")
     return #self.matches > 0 and self.matches or false
 end
 
+-- Find matches in a given direction
+function Board:findMatches(direction)
+    local length = 8
+    for i = 1, length do
+        local matchNum = 1
+        local colorToMatch
+        for j = 1, length do
+            local x, y = j, i
+            if direction == "vertical" then x, y = i, j end
+            local tile = self.tiles[y][x]
+            if j == 1 then
+                colorToMatch = tile.color
+            elseif tile.color == colorToMatch then
+                matchNum = matchNum + 1
+            else
+                self:checkForMatch(x, y, matchNum, direction)
+                colorToMatch = tile.color
+                matchNum = 1
+            end
+        end
+        self:checkForMatch(length + 1, i, matchNum, direction)
+    end
+end
 
---[[
-    Remove the matches from the Board by just setting the Tile slots within
-    them to nil, then setting self.matches to nil.
-]]
+-- Check for a match and add to matches table
+function Board:checkForMatch(x, y, matchNum, direction)
+    if matchNum >= 3 then
+        local match = {tiles = {}, direction = direction}
+        for i = 1, matchNum do
+            local tileX, tileY = x - i, y
+            if direction == "vertical" then tileX, tileY = x, y - i end
+            table.insert(match.tiles, self.tiles[tileY][tileX])
+        end
+        table.insert(self.matches, match)
+    end
+end
+
+
+-- Remove the matches from the Board
 function Board:removeMatches()
+    print("Starting to remove matches...")
+    
     for _, match in pairs(self.matches) do
-        print(match.matchType)
-        for _, tile in pairs(match) do
-            print(tile)
-            print(tile.gridX, tile.gridY)
+        print("Processing a match...")
+        
+        local shinyFound = false
+        local shinyX, shinyY = 0, 0
+
+        -- Check if any tile in the match is shiny
+        for _, tile in pairs(match.tiles) do
+            if tile.shiny then
+                print("Shiny tile found!")
+                
+                shinyFound = true
+                shinyX, shinyY = tile.gridX, tile.gridY
+                break
+            end
+        end
+
+        -- Remove matched tiles
+        print("Removing matched tiles...")
+        for _, tile in pairs(match.tiles) do
             self.tiles[tile.gridY][tile.gridX] = nil
         end
+
+        -- If a shiny tile was found, clear the entire row or column
+        if shinyFound then
+            print("Clearing entire row or column due to shiny tile...")
+            
+            if match.direction == "horizontal" then
+                print("Clearing entire row...")
+                for x = 1, 8 do
+                    self.tiles[shinyY][x] = nil
+                end
+            else
+                print("Clearing entire column...")
+                for y = 1, 8 do
+                    self.tiles[y][shinyX] = nil
+                end
+            end
+        end
     end
+    
+    print("Matches removed. Resetting self.matches to nil.")
     self.matches = nil
 end
+
 
 --[[
     Shifts down all of the tiles that now have spaces below them, then returns a table that
