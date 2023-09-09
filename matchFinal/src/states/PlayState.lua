@@ -205,14 +205,10 @@ function PlayState:calculateMatches()
         gSounds['match']:stop()
         gSounds['match']:play()
 
-        -- add score for each match and extend the timer by the number of matches
-        for k, match in pairs(matches) do
-            self.score = self.score + #match * 50
-            self.timer = self.timer + #match
-        end
-
         -- remove any tiles that matched from the board, making empty spaces
-        self.board:removeMatches()
+        local tilesRemoved = self.board:removeMatches()
+        self.score = self.score + tilesRemoved * 50 -- Update the score
+        self.timer = self.timer + tilesRemoved -- Update the timer
 
         -- gets a table with tween values for tiles that should now fall
         local tilesToFall = self.board:getFallingTiles()

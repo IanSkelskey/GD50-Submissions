@@ -62,7 +62,9 @@ function Board:findMatches(direction)
         local colorToMatch
         for j = 1, length do
             local x, y = j, i
-            if direction == "vertical" then x, y = i, j end
+            if direction == "vertical" then
+                x, y = i, j
+            end
             local tile = self.tiles[y][x]
             if j == 1 then
                 colorToMatch = tile.color
@@ -81,24 +83,29 @@ end
 -- Check for a match and add to matches table
 function Board:checkForMatch(x, y, matchNum, direction)
     if matchNum >= 3 then
-        local match = {tiles = {}, direction = direction}
+        local match = {
+            tiles = {},
+            direction = direction
+        }
         for i = 1, matchNum do
             local tileX, tileY = x - i, y
-            if direction == "vertical" then tileX, tileY = x, y - i end
+            if direction == "vertical" then
+                tileX, tileY = x, y - i
+            end
             table.insert(match.tiles, self.tiles[tileY][tileX])
         end
         table.insert(self.matches, match)
     end
 end
 
-
 -- Remove the matches from the Board
 function Board:removeMatches()
+    local removedTileCount = 0
     print("Starting to remove matches...")
-    
+
     for _, match in pairs(self.matches) do
         print("Processing a match...")
-        
+
         local shinyFound = false
         local shinyX, shinyY = 0, 0
 
@@ -106,41 +113,45 @@ function Board:removeMatches()
         for _, tile in pairs(match.tiles) do
             if tile.shiny then
                 print("Shiny tile found!")
-                
+
                 shinyFound = true
                 shinyX, shinyY = tile.gridX, tile.gridY
                 break
             end
         end
 
-        -- Remove matched tiles
-        print("Removing matched tiles...")
-        for _, tile in pairs(match.tiles) do
-            self.tiles[tile.gridY][tile.gridX] = nil
-        end
-
         -- If a shiny tile was found, clear the entire row or column
         if shinyFound then
             print("Clearing entire row or column due to shiny tile...")
-            
+
             if match.direction == "horizontal" then
                 print("Clearing entire row...")
                 for x = 1, 8 do
                     self.tiles[shinyY][x] = nil
+                    removedTileCount = removedTileCount + 1
                 end
             else
                 print("Clearing entire column...")
                 for y = 1, 8 do
                     self.tiles[y][shinyX] = nil
+                    pointsEarned = removedTileCount + 1
                 end
             end
+        else
+            -- Remove matched tiles
+            print("Removing matched tiles...")
+            for _, tile in pairs(match.tiles) do
+                self.tiles[tile.gridY][tile.gridX] = nil
+                removedTileCount = removedTileCount + 1
+            end
         end
+
+        return removedTileCount
     end
-    
+
     print("Matches removed. Resetting self.matches to nil.")
     self.matches = nil
 end
-
 
 --[[
     Shifts down all of the tiles that now have spaces below them, then returns a table that
