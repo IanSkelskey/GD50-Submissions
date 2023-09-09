@@ -192,22 +192,30 @@ function PlayState:swapTiles()
     end)
 end
 
-function PlayState:swapBack(tempX, tempY, newTile, highlightedTile)  -- Add highlightedTile as an argument
+function PlayState:swapBack(tempX, tempY, newTile, highlightedTile)
     -- Swap the grid positions back
-    highlightedTile.gridX = tempX  -- Use the passed highlightedTile
-    highlightedTile.gridY = tempY
-    newTile.gridX = highlightedTile.gridX
-    newTile.gridY = highlightedTile.gridY
+    highlightedTile.gridX, newTile.gridX = newTile.gridX, highlightedTile.gridX
+    highlightedTile.gridY, newTile.gridY = newTile.gridY, highlightedTile.gridY
 
-    -- Swap the tiles back in the tiles table
-    self.board.tiles[highlightedTile.gridY][highlightedTile.gridX] = highlightedTile  -- Use the passed highlightedTile
+    -- Update the board tiles
+    self.board.tiles[highlightedTile.gridY][highlightedTile.gridX] = highlightedTile
     self.board.tiles[newTile.gridY][newTile.gridX] = newTile
+
+    gSounds['error']:play()
 
     -- Tween the coordinates back
     Timer.tween(0.1, {
-        [highlightedTile] = {x = newTile.x, y = newTile.y},  -- Use the passed highlightedTile
+        [highlightedTile] = {x = newTile.x, y = newTile.y},
         [newTile] = {x = highlightedTile.x, y = highlightedTile.y}
     }):finish(function()
+        -- Reset the grid positions back to their original values
+        highlightedTile.gridX, newTile.gridX = tempX, newTile.gridX
+        highlightedTile.gridY, newTile.gridY = tempY, newTile.gridY
+
+        -- Update the board tiles again
+        self.board.tiles[highlightedTile.gridY][highlightedTile.gridX] = highlightedTile
+        self.board.tiles[newTile.gridY][newTile.gridX] = newTile
+
         self.canInput = true
     end)
 end
@@ -249,9 +257,11 @@ function PlayState:calculateMatches()
                 self:calculateMatches()
             end)
         end)
-        -- if no matches, we can continue playing
+        return true
     else
+        -- if no matches, we can continue playing
         self.canInput = true
+        return false
     end
 end
 
@@ -287,7 +297,6 @@ function PlayState:render()
     -- GUI text
     love.graphics.setColor(56 / 255, 56 / 255, 56 / 255, 234 / 255)
     love.graphics.rectangle('fill', 16, 16, 186, 116, 4)
-
     love.graphics.setColor(99 / 255, 155 / 255, 255 / 255, 255 / 255)
     love.graphics.setFont(gFonts['medium'])
     love.graphics.printf('Level: ' .. tostring(self.level), 20, 24, 182, 'center')
