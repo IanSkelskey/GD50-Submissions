@@ -9,8 +9,8 @@ Match-3 is a tile-matching puzzle game similar to renowned titles like Bejeweled
 - [x] Read and understand all source code
 - [x] Implemented time addition on matches
 - [x] Made Level 1 start with simple flat blocks
-- [ ] Created shiny blocks that destroy an entire row on match
-- [ ] Enabled swapping only when it results in a match
+- [x] Created shiny blocks that destroy an entire row on match
+- [x] Enabled swapping only when it results in a match
 - [ ] (Optional) Implemented matching using the mouse
 
 ---
@@ -22,7 +22,12 @@ Match-3 is a tile-matching puzzle game similar to renowned titles like Bejeweled
 
 ## In-Progress Features 🚧
 - **Settings Menu**: A comprehensive settings menu is under development.
+- **Board Integrity**: Sometimes boards are generated with no possible matches. This is being fixed.
 - **How-to-Play Screen**: A guide screen to assist new players is in the works.
 - **Advanced Scoring Mechanics**: Working on different scoring mechanics to add variety and challenge to the game.
+- ### (Optional) Mouse Controls
+  - **Mouse Controls**: The game can be played using the mouse.
+  - **Mouse Hover**: The mouse can be used to hover over tiles.
+  - **Mouse Click**: The mouse can be used to select tiles.
 
 ---
