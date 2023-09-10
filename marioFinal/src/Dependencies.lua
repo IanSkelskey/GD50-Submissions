@@ -45,11 +45,17 @@ require 'src/Animation'
 require 'src/Entity'
 require 'src/GameObject'
 require 'src/GameLevel'
+require 'src/EventManager'
 require 'src/LevelMaker'
 require 'src/Player'
 require 'src/Snail'
 require 'src/Tile'
 require 'src/TileMap'
+
+-- game objects
+require 'src/objects/Gem'
+require 'src/objects/Key'
+require 'src/objects/Block'
 
 gSounds = {
     ['jump'] = love.audio.newSource('sounds/jump.wav', 'static'),

@@ -27,6 +27,17 @@ function LevelMaker.generate(width, height)
     local entities = {}
     local objects = {}
 
+    -- event manager for world events
+    local eventManager = EventManager()
+
+    -- Subscribe to 'blockHit' event
+    eventManager:subscribe('blockHit', function(reward)
+        if reward then
+            print('Found reward: ' .. reward.texture)
+            table.insert(objects, reward)
+        end
+    end)
+
     local tileset = math.random(20)
     local topperset = math.random(20)
     local LOCK_COLOR = math.random(#KEYS)
@@ -43,7 +54,7 @@ function LevelMaker.generate(width, height)
         if math.random(7) ~= 1 then
             tileID = TILE_ID_GROUND
             fillColumn(tiles, x, 7, height, tileID, true, tileset, topperset)
-            objects = addLevelFeatures(x, blockHeight, objects, tiles, tileID, true, tileset, topperset)
+            objects = addLevelFeatures(x, blockHeight, objects, tiles, tileID, true, tileset, topperset, eventManager)
         else
             fillColumn(tiles, x, 7, height, tileID, nil, tileset, topperset)
         end
@@ -59,7 +70,7 @@ function LevelMaker.generate(width, height)
 end
 
 -- Function to add features like pillars, bushes, and blocks
-function addLevelFeatures(x, blockHeight, objects, tiles, tileID, topper, tileset, topperset)
+function addLevelFeatures(x, blockHeight, objects, tiles, tileID, topper, tileset, topperset, eventManager)
     if math.random(8) == 1 then
         -- Add pillar
         blockHeight = 2
@@ -96,60 +107,11 @@ function addLevelFeatures(x, blockHeight, objects, tiles, tileID, topper, tilese
 
     -- Randomly spawn a block
     if math.random(10) == 1 then
-        local onCollide = function(obj)
-            -- spawn a gem if we haven't already hit the block
-            if not obj.hit then
-
-                -- chance to spawn gem, not guaranteed
-                if math.random(5) == 1 then
-
-                    -- maintain reference so we can set it to nil
-                    local gem = GameObject {
-                        texture = 'gems',
-                        x = (x - 1) * TILE_SIZE,
-                        y = (blockHeight - 1) * TILE_SIZE - 4,
-                        width = 16,
-                        height = 16,
-                        frame = math.random(#GEMS),
-                        collidable = true,
-                        consumable = true,
-                        solid = false,
-
-                        -- gem has its own function to add to the player's score
-                        onConsume = function(player, object)
-                            gSounds['pickup']:play()
-                            player.score = player.score + 100
-                        end
-                    }
-
-                    -- make the gem move up from the block and play a sound
-                    Timer.tween(0.1, {
-                        [gem] = {
-                            y = (blockHeight - 2) * TILE_SIZE
-                        }
-                    })
-                    gSounds['powerup-reveal']:play()
-
-                    table.insert(objects, gem)
-                end
-
-                obj.hit = true
-            end
-
-            gSounds['empty-block']:play()
+        local block = Block((x - 1) * TILE_SIZE, (blockHeight - 1) * TILE_SIZE, nil, eventManager)
+        if math.random(5) == 1 then
+            block.reward = Gem(block.x, block.y - 12)
         end
-
-        table.insert(objects, GameObject {
-            texture = 'jump-blocks',
-            x = (x - 1) * TILE_SIZE,
-            y = (blockHeight - 1) * TILE_SIZE,
-            width = 16,
-            height = 16,
-            frame = math.random(#JUMP_BLOCKS),
-            collidable = true,
-            solid = true,
-            onCollide = onCollide
-        })
+        table.insert(objects, block)
     end
 
     return objects
@@ -201,32 +163,7 @@ function placeKeyInJumpBlock(objects, color)
     if #jumpBlockIndices > 0 then
         local randomIndex = jumpBlockIndices[math.random(#jumpBlockIndices)]
         local selectedJumpBlock = objects[randomIndex]
-        print("Frame for Key: ", KEYS[color])
-        -- Step 3: Add Key
-        -- Modify the onCollide function to spawn a key
-        selectedJumpBlock.onCollide = function(obj)
-            -- Existing code for spawning gems, etc., can remain here
-
-            -- Add code to spawn a key that matches the LOCK_COLOR
-            local key = GameObject {
-                texture = 'keys-and-locks', -- Texture name
-                x = selectedJumpBlock.x,
-                y = selectedJumpBlock.y - 16, -- Position above the block
-                width = 16,
-                height = 16,
-                frame = KEYS[color], -- Assuming KEYS is a table like LOCKS
-                collidable = true,
-                consumable = true,
-                solid = false,
-                onConsume = function(player, object)
-                    -- Define behavior on consuming the key
-                    -- For example, add the key to the player's inventory
-                end
-            }
-
-            -- Add the key to the objects table
-            table.insert(objects, key)
-        end
+        selectedJumpBlock.reward = Key(selectedJumpBlock.x, selectedJumpBlock.y - 16, color)
     else
         print("No jump blocks found to place a key.")
     end
