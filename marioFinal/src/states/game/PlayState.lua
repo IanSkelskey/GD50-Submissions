@@ -1,11 +1,54 @@
---[[
-    GD50
-    Super Mario Bros. Remake
+-- Constants
+local BACKGROUND_SPEED = 3
+local TILE_SIZE = 16
+local VIRTUAL_WIDTH = 432
 
-    -- PlayState Class --
-]]
+-- Helper function to draw background
+local function drawBackground(background, backgroundX)
+    for offset = 0, 256, 256 do
+        love.graphics.draw(gTextures['backgrounds'], gFrames['backgrounds'][background],
+            math.floor(-backgroundX + offset), 0)
+        love.graphics.draw(gTextures['backgrounds'], gFrames['backgrounds'][background],
+            math.floor(-backgroundX + offset), gTextures['backgrounds']:getHeight() / BACKGROUND_SPEED, 0, 1, -1)
+    end
+end
 
-PlayState = Class{__includes = BaseState}
+-- Initialize player state machine
+local function initPlayerStateMachine(player, gravityAmount)
+    return StateMachine {
+        ['idle'] = function()
+            return PlayerIdleState(player)
+        end,
+        ['walking'] = function()
+            return PlayerWalkingState(player)
+        end,
+        ['jump'] = function()
+            return PlayerJumpState(player, gravityAmount)
+        end,
+        ['falling'] = function()
+            return PlayerFallingState(player, gravityAmount)
+        end
+    }
+end
+
+-- Initialize snail state machine
+local function initSnailStateMachine(tileMap, player, snail)
+    return StateMachine {
+        ['idle'] = function()
+            return SnailIdleState(tileMap, player, snail)
+        end,
+        ['moving'] = function()
+            return SnailMovingState(tileMap, player, snail)
+        end,
+        ['chasing'] = function()
+            return SnailChasingState(tileMap, player, snail)
+        end
+    }
+end
+
+PlayState = Class {
+    __includes = BaseState
+}
 
 function PlayState:init()
     self.camX = 0
@@ -18,37 +61,45 @@ function PlayState:init()
     self.gravityOn = true
     self.gravityAmount = 6
 
+    -- Find the first column with solid ground
+    local spawnX = 0
+    for x = 1, self.tileMap.width do
+        local groundFound = false
+        for y = 1, self.tileMap.height do
+            if self.tileMap.tiles[y][x].id == TILE_ID_GROUND then
+                groundFound = true
+                break
+            end
+        end
+        if groundFound then
+            spawnX = (x - 1) * TILE_SIZE
+            break
+        end
+    end
+
     self.player = Player({
-        x = 0, y = 0,
-        width = 16, height = 20,
+        x = spawnX,
+        y = 0, -- Spawn at the top of the screen
+        width = 16,
+        height = 20,
         texture = 'green-alien',
-        stateMachine = StateMachine {
-            ['idle'] = function() return PlayerIdleState(self.player) end,
-            ['walking'] = function() return PlayerWalkingState(self.player) end,
-            ['jump'] = function() return PlayerJumpState(self.player, self.gravityAmount) end,
-            ['falling'] = function() return PlayerFallingState(self.player, self.gravityAmount) end
-        },
         map = self.tileMap,
         level = self.level
     })
 
-    self:spawnEnemies()
+    self.player.stateMachine = initPlayerStateMachine(self.player, self.gravityAmount)
 
+    self:spawnEnemies()
     self.player:changeState('falling')
 end
 
 function PlayState:update(dt)
     Timer.update(dt)
-
-    -- remove any nils from pickups, etc.
     self.level:clear()
-
-    -- update player and level
     self.player:update(dt)
     self.level:update(dt)
     self:updateCamera()
 
-    -- constrain player X no matter which state
     if self.player.x <= 0 then
         self.player.x = 0
     elseif self.player.x > TILE_SIZE * self.tileMap.width - self.player.width then
@@ -58,22 +109,12 @@ end
 
 function PlayState:render()
     love.graphics.push()
-    love.graphics.draw(gTextures['backgrounds'], gFrames['backgrounds'][self.background], math.floor(-self.backgroundX), 0)
-    love.graphics.draw(gTextures['backgrounds'], gFrames['backgrounds'][self.background], math.floor(-self.backgroundX),
-        gTextures['backgrounds']:getHeight() / 3 * 2, 0, 1, -1)
-    love.graphics.draw(gTextures['backgrounds'], gFrames['backgrounds'][self.background], math.floor(-self.backgroundX + 256), 0)
-    love.graphics.draw(gTextures['backgrounds'], gFrames['backgrounds'][self.background], math.floor(-self.backgroundX + 256),
-        gTextures['backgrounds']:getHeight() / 3 * 2, 0, 1, -1)
-    
-    -- translate the entire view of the scene to emulate a camera
+    drawBackground(self.background, self.backgroundX)
     love.graphics.translate(-math.floor(self.camX), -math.floor(self.camY))
-    
     self.level:render()
-
     self.player:render()
     love.graphics.pop()
-    
-    -- render score
+
     love.graphics.setFont(gFonts['medium'])
     love.graphics.setColor(0, 0, 0, 1)
     love.graphics.print(tostring(self.player.score), 5, 5)
@@ -82,24 +123,13 @@ function PlayState:render()
 end
 
 function PlayState:updateCamera()
-    -- clamp movement of the camera's X between 0 and the map bounds - virtual width,
-    -- setting it half the screen to the left of the player so they are in the center
-    self.camX = math.max(0,
-        math.min(TILE_SIZE * self.tileMap.width - VIRTUAL_WIDTH,
+    self.camX = math.max(0, math.min(TILE_SIZE * self.tileMap.width - VIRTUAL_WIDTH,
         self.player.x - (VIRTUAL_WIDTH / 2 - 8)))
-
-    -- adjust background X to move a third the rate of the camera for parallax
     self.backgroundX = (self.camX / 3) % 256
 end
 
---[[
-    Adds a series of enemies to the level randomly.
-]]
 function PlayState:spawnEnemies()
-    -- spawn snails in the level
     for x = 1, self.tileMap.width do
-
-        -- flag for whether there's ground on this column of the level
         local groundFound = false
 
         for y = 1, self.tileMap.height do
@@ -107,27 +137,22 @@ function PlayState:spawnEnemies()
                 if self.tileMap.tiles[y][x].id == TILE_ID_GROUND then
                     groundFound = true
 
-                    -- random chance, 1 in 20
                     if math.random(20) == 1 then
-                        
-                        -- instantiate snail, declaring in advance so we can pass it into state machine
-                        local snail
-                        snail = Snail {
+                        -- Declare snail first
+                        local snail = Snail {
                             texture = 'creatures',
                             x = (x - 1) * TILE_SIZE,
                             y = (y - 2) * TILE_SIZE + 2,
                             width = 16,
-                            height = 16,
-                            stateMachine = StateMachine {
-                                ['idle'] = function() return SnailIdleState(self.tileMap, self.player, snail) end,
-                                ['moving'] = function() return SnailMovingState(self.tileMap, self.player, snail) end,
-                                ['chasing'] = function() return SnailChasingState(self.tileMap, self.player, snail) end
-                            }
+                            height = 16
                         }
+
+                        -- Then initialize its state machine
+                        snail.stateMachine = initSnailStateMachine(self.tileMap, self.player, snail)
+
                         snail:changeState('idle', {
                             wait = math.random(5)
                         })
-
                         table.insert(self.level.entities, snail)
                     end
                 end
@@ -135,3 +160,4 @@ function PlayState:spawnEnemies()
         end
     end
 end
+

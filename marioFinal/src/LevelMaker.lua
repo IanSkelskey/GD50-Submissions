@@ -1,24 +1,8 @@
--- LevelMaker Class
 LevelMaker = Class{}
 
 -- Helper function to create a new tile
 local function createTile(x, y, tileID, topper, tileset, topperset)
     return Tile(x, y, tileID, topper, tileset, topperset)
-end
-
--- Helper function to create a new GameObject
-local function createObject(texture, x, y, width, height, frame, collidable, solid, onCollide)
-    return {
-        texture = texture,
-        x = x,
-        y = y,
-        width = width,
-        height = height,
-        frame = frame,
-        collidable = collidable,
-        solid = solid,
-        onCollide = onCollide
-    }
 end
 
 -- Main function to generate the level
@@ -57,7 +41,7 @@ function LevelMaker.generate(width, height)
             end
 
             -- Randomly add features to the level
-            blockHeight, objects = addLevelFeatures(x, blockHeight, objects, tiles, tileID, topper, tileset, topperset)
+            objects = addLevelFeatures(x, blockHeight, objects, tiles, tileID, topper, tileset, topperset)
         else
             -- Create empty space
             for y = 7, height do
@@ -83,11 +67,29 @@ function addLevelFeatures(x, blockHeight, objects, tiles, tileID, topper, tilese
 
         -- Randomly add bush on pillar
         if math.random(8) == 1 then
-            table.insert(objects, createObject('bushes', (x - 1) * TILE_SIZE, (4 - 1) * TILE_SIZE, 16, 16, BUSH_IDS[math.random(#BUSH_IDS)] + (math.random(4) - 1) * 7, false, false, nil))
+            table.insert(objects, GameObject {
+                texture = 'bushes',
+                x = (x - 1) * TILE_SIZE,
+                y = (4 - 1) * TILE_SIZE,
+                width = 16,
+                height = 16,
+                frame = BUSH_IDS[math.random(#BUSH_IDS)] + (math.random(4) - 1) * 7,
+                collidable = false,
+                solid = false
+            })
         end
     elseif math.random(8) == 1 then
         -- Add bush
-        table.insert(objects, createObject('bushes', (x - 1) * TILE_SIZE, (6 - 1) * TILE_SIZE, 16, 16, BUSH_IDS[math.random(#BUSH_IDS)] + (math.random(4) - 1) * 7, false, false, nil))
+        table.insert(objects, GameObject {
+            texture = 'bushes',
+            x = (x - 1) * TILE_SIZE,
+            y = (6 - 1) * TILE_SIZE,
+            width = 16,
+            height = 16,
+            frame = BUSH_IDS[math.random(#BUSH_IDS)] + (math.random(4) - 1) * 7,
+            collidable = false,
+            solid = false
+        })
     end
 
     -- Randomly spawn a block
@@ -96,8 +98,18 @@ function addLevelFeatures(x, blockHeight, objects, tiles, tileID, topper, tilese
             -- Define behavior on collision
         end
 
-        table.insert(objects, createObject('jump-blocks', (x - 1) * TILE_SIZE, (blockHeight - 1) * TILE_SIZE, 16, 16, math.random(#JUMP_BLOCKS), true, true, onCollide))
+        table.insert(objects, GameObject {
+            texture = 'jump-blocks',
+            x = (x - 1) * TILE_SIZE,
+            y = (blockHeight - 1) * TILE_SIZE,
+            width = 16,
+            height = 16,
+            frame = math.random(#JUMP_BLOCKS),
+            collidable = true,
+            solid = true,
+            onCollide = onCollide
+        })
     end
 
-    return blockHeight, objects
+    return objects
 end
