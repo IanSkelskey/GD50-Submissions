@@ -33,5 +33,7 @@ function GameObject:update(dt)
 end
 
 function GameObject:render()
-    love.graphics.draw(gTextures[self.texture], gFrames[self.texture][self.frame], self.x, self.y)
+    local texture = gTextures[self.texture]
+    local quad = gFrames[self.texture][self.frame]
+    love.graphics.draw(texture, quad, self.x, self.y)
 end
