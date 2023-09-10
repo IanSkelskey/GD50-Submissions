@@ -56,6 +56,7 @@ require 'src/TileMap'
 require 'src/objects/Gem'
 require 'src/objects/Key'
 require 'src/objects/Block'
+require 'src/objects/Lock'
 
 gSounds = {
     ['jump'] = love.audio.newSource('sounds/jump.wav', 'static'),

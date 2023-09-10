@@ -1,6 +1,13 @@
 Key = Class{__includes = GameObject}
 
-function Key:init(x, y, color)
+function Key:init(x, y, color, eventManager)
+    local function onConsume(player, object)
+        eventManager:emit('keyConsume', color)
+        gSounds['pickup']:play()
+        player.score = player.score + 100
+        player.key = self
+    end
+
     GameObject.init(self, {
         x = x,
         y = y,
@@ -11,10 +18,7 @@ function Key:init(x, y, color)
         consumable = true,
         solid = false,
         collidable = true,
-        onConsume = function(player, object)
-            gSounds['pickup']:play()
-            player.score = player.score + 100
-            player.hasKey = true
-        end
+        onConsume = onConsume
     })
+    self.color = color
 end

@@ -33,9 +33,13 @@ function LevelMaker.generate(width, height)
     -- Subscribe to 'blockHit' event
     eventManager:subscribe('blockHit', function(reward)
         if reward then
-            print('Found reward: ' .. reward.texture)
             table.insert(objects, reward)
         end
+    end)
+
+    eventManager:subscribe('keyConsume', function(color)
+        unlockBlock(objects, color)
+        print('Something happened!')
     end)
 
     local tileset = math.random(20)
@@ -61,7 +65,7 @@ function LevelMaker.generate(width, height)
     end
 
     replaceJumpBlockWithLock(objects, LOCK_COLOR)
-    placeKeyInJumpBlock(objects, LOCK_COLOR)
+    placeKeyInJumpBlock(objects, LOCK_COLOR, eventManager)
 
     local map = TileMap(width, height)
     map.tiles = tiles
@@ -131,26 +135,14 @@ function replaceJumpBlockWithLock(objects, color)
         local randomIndex = jumpBlockIndices[math.random(#jumpBlockIndices)]
         local selectedJumpBlock = objects[randomIndex]
         print("Frame for Lock: ", LOCKS[color])
-        objects[randomIndex] = GameObject {
-            texture = 'keys-and-locks', -- Texture name
-            x = selectedJumpBlock.x,
-            y = selectedJumpBlock.y,
-            width = 16,
-            height = 16,
-            frame = LOCKS[color],
-            collidable = true,
-            solid = true,
-            onCollide = function(obj)
-                -- Define behavior on collision
-            end
-        }
+        objects[randomIndex] = Lock(selectedJumpBlock.x, selectedJumpBlock.y - 16, color, eventManager)
     else
         print("No jump blocks found to replace with a lock.")
     end
 end
 
 -- Function to place a key in a random jump block
-function placeKeyInJumpBlock(objects, color)
+function placeKeyInJumpBlock(objects, color, eventManager)
     -- Step 1: Identify Jump Blocks
     local jumpBlockIndices = {}
     for i, object in ipairs(objects) do
@@ -163,8 +155,24 @@ function placeKeyInJumpBlock(objects, color)
     if #jumpBlockIndices > 0 then
         local randomIndex = jumpBlockIndices[math.random(#jumpBlockIndices)]
         local selectedJumpBlock = objects[randomIndex]
-        selectedJumpBlock.reward = Key(selectedJumpBlock.x, selectedJumpBlock.y - 16, color)
+        selectedJumpBlock.reward = Key(selectedJumpBlock.x, selectedJumpBlock.y - 16, color, eventManager)
     else
         print("No jump blocks found to place a key.")
     end
+end
+
+-- Unlock the locked block by making it consumable
+function unlockBlock(objects, color)
+    -- Step 1: Identify Locked Blocks
+    local lockedBlockIndex
+    for i, object in ipairs(objects) do
+        if object.texture == 'keys-and-locks' and object.frame == LOCKS[color] then
+            lockedBlockIndex = i
+        end
+    end
+
+    local selectedLockedBlock = objects[lockedBlockIndex]
+    selectedLockedBlock.consumable = true
+    selectedLockedBlock.solid = false
+
 end
