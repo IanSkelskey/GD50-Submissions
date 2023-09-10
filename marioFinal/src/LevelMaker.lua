@@ -84,29 +84,13 @@ function addLevelFeatures(x, blockHeight, objects, tiles, tileID, topper, tilese
 
         -- Randomly add bush on pillar
         if math.random(8) == 1 then
-            table.insert(objects, GameObject {
-                texture = 'bushes',
-                x = (x - 1) * TILE_SIZE,
-                y = (4 - 1) * TILE_SIZE,
-                width = 16,
-                height = 16,
-                frame = BUSH_IDS[math.random(#BUSH_IDS)] + (math.random(4) - 1) * 7,
-                collidable = false,
-                solid = false
-            })
+            local bush = Bush((x - 1) * TILE_SIZE, (4 - 1) * TILE_SIZE)
+            table.insert(objects, bush)
         end
     elseif math.random(8) == 1 then
         -- Add bush
-        table.insert(objects, GameObject {
-            texture = 'bushes',
-            x = (x - 1) * TILE_SIZE,
-            y = (6 - 1) * TILE_SIZE,
-            width = 16,
-            height = 16,
-            frame = BUSH_IDS[math.random(#BUSH_IDS)] + (math.random(4) - 1) * 7,
-            collidable = false,
-            solid = false
-        })
+        local bush = Bush((x - 1) * TILE_SIZE, (6 - 1) * TILE_SIZE)
+        table.insert(objects, bush)
     end
 
     -- Randomly spawn a block

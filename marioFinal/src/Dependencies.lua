@@ -57,6 +57,7 @@ require 'src/objects/Gem'
 require 'src/objects/Key'
 require 'src/objects/Block'
 require 'src/objects/Lock'
+require 'src/objects/Bush'
 
 gSounds = {
     ['jump'] = love.audio.newSource('sounds/jump.wav', 'static'),
