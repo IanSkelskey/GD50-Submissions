@@ -1,5 +1,10 @@
 LevelMaker = Class {}
 
+-- Constants
+local PILLAR_HEIGHT = 2
+local BLOCK_HEIGHT = 4
+local BUSH_HEIGHT = 6
+
 -- Helper function to create a new tile
 local function createTile(x, y, tileID, topper, tileset, topperset)
     return Tile(x, y, tileID, topper, tileset, topperset)
@@ -19,6 +24,28 @@ local function fillColumn(tiles, x, startY, endY, tileID, topper, tileset, toppe
     for y = startY, endY do
         table.insert(tiles[y], createTile(x, y, tileID, y == startY and topper or nil, tileset, topperset))
     end
+end
+
+-- Function to add a pillar
+local function addPillar(x, objects, tileID, topper, tiles, tileset, topperset)
+    tiles[5][x] = createTile(x, 5, tileID, topper, tileset, topperset)
+    tiles[6][x] = createTile(x, 6, tileID, nil, tileset, topperset)
+    tiles[7][x].topper = nil
+end
+
+-- Function to add a bush
+local function addBush(x, y, objects)
+    local bush = Bush(x, y)
+    table.insert(objects, bush)
+end
+
+-- Function to add a random block
+local function addRandomBlock(x, y, objects, eventManager)
+    local block = Block(x, y, nil, eventManager)
+    if math.random(5) == 1 then
+        block.reward = Gem(block.x, block.y - 12)
+    end
+    table.insert(objects, block)
 end
 
 -- Main function to generate the level
@@ -58,7 +85,7 @@ function LevelMaker.generate(width, height)
         if math.random(7) ~= 1 then
             tileID = TILE_ID_GROUND
             fillColumn(tiles, x, 7, height, tileID, true, tileset, topperset)
-            objects = addLevelFeatures(x, blockHeight, objects, tiles, tileID, true, tileset, topperset, eventManager)
+            objects = addLevelFeatures(x, objects, tiles, tileID, true, tileset, topperset, eventManager)
         else
             fillColumn(tiles, x, 7, height, tileID, nil, tileset, topperset)
         end
@@ -74,32 +101,39 @@ function LevelMaker.generate(width, height)
 end
 
 -- Function to add features like pillars, bushes, and blocks
-function addLevelFeatures(x, blockHeight, objects, tiles, tileID, topper, tileset, topperset, eventManager)
-    if math.random(8) == 1 then
-        -- Add pillar
-        blockHeight = 2
-        tiles[5][x] = createTile(x, 5, tileID, topper, tileset, topperset)
-        tiles[6][x] = createTile(x, 6, tileID, nil, tileset, topperset)
-        tiles[7][x].topper = nil
+function addLevelFeatures(x, objects, tiles, tileID, topper, tileset, topperset, eventManager)
+    local hasPillar = math.random(8) == 1
+    local hasBush = math.random(8) == 1
+    local hasBlock = math.random(10) == 1
 
-        -- Randomly add bush on pillar
-        if math.random(8) == 1 then
-            local bush = Bush((x - 1) * TILE_SIZE, (4 - 1) * TILE_SIZE)
-            table.insert(objects, bush)
-        end
-    elseif math.random(8) == 1 then
-        -- Add bush
-        local bush = Bush((x - 1) * TILE_SIZE, (6 - 1) * TILE_SIZE)
-        table.insert(objects, bush)
+    if hasPillar then
+        addPillar(x, objects, tileID, topper, tiles, tileset, topperset)
     end
 
-    -- Randomly spawn a block
-    if math.random(10) == 1 then
-        local block = Block((x - 1) * TILE_SIZE, (blockHeight - 1) * TILE_SIZE, nil, eventManager)
-        if math.random(5) == 1 then
-            block.reward = Gem(block.x, block.y - 12)
+    if hasBush then
+        local x = (x - 1) * TILE_SIZE
+        local y
+        if (hasPillar) then
+            print('Generating bush on pillar at x: ', x)
+            y = TILE_SIZE * 3
+        else
+            print('Generating bush without pillar at x: ', x)
+            y = TILE_SIZE * 5
         end
-        table.insert(objects, block)
+        addBush(x, y, objects)
+    end
+
+    if hasBlock then
+        local x = (x - 1) * TILE_SIZE
+        local y
+        if (hasPillar) then
+            print('Generating block on pillar at x: ', x)
+            y = (PILLAR_HEIGHT - 1) * TILE_SIZE
+        else
+            print('Generating block without pillar at x: ', x)
+            y = (BLOCK_HEIGHT - 1) * TILE_SIZE
+        end
+        addRandomBlock(x, y, objects, eventManager)
     end
 
     return objects
