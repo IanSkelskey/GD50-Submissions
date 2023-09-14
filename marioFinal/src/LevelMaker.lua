@@ -69,6 +69,13 @@ function LevelMaker.generate(width, height)
         print('Something happened!')
     end)
 
+    eventManager:subscribe('unlock', function(color)
+        -- Spawn a flag at the end of the level
+        local flag = Flag((width - 14) * TILE_SIZE, (height - 7) * TILE_SIZE, color, eventManager)
+        table.insert(objects, flag)
+        print('Unlocking the lock! Spawned a flag!')
+    end)
+
     local tileset = math.random(20)
     local topperset = math.random(20)
     local LOCK_COLOR = math.random(#KEYS)
@@ -91,7 +98,7 @@ function LevelMaker.generate(width, height)
         end
     end
 
-    replaceJumpBlockWithLock(objects, LOCK_COLOR)
+    replaceJumpBlockWithLock(objects, LOCK_COLOR, eventManager)
     placeKeyInJumpBlock(objects, LOCK_COLOR, eventManager)
 
     local map = TileMap(width, height)
@@ -140,7 +147,7 @@ function addLevelFeatures(x, objects, tiles, tileID, topper, tileset, topperset,
 end
 
 -- Function to replace a random jump block with a lock
-function replaceJumpBlockWithLock(objects, color)
+function replaceJumpBlockWithLock(objects, color, eventManager)  -- Added eventManager as an argument
     -- Step 1: Identify Jump Blocks
     local jumpBlockIndices = {}
     for i, object in ipairs(objects) do
@@ -153,7 +160,7 @@ function replaceJumpBlockWithLock(objects, color)
         local randomIndex = jumpBlockIndices[math.random(#jumpBlockIndices)]
         local selectedJumpBlock = objects[randomIndex]
         print("Frame for Lock: ", LOCKS[color])
-        objects[randomIndex] = Lock(selectedJumpBlock.x, selectedJumpBlock.y - 16, color, eventManager)
+        objects[randomIndex] = Lock(selectedJumpBlock.x, selectedJumpBlock.y - 16, color, eventManager)  -- Passed eventManager here
     else
         print("No jump blocks found to replace with a lock.")
     end

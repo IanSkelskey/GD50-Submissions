@@ -58,6 +58,7 @@ require 'src/objects/Key'
 require 'src/objects/Block'
 require 'src/objects/Lock'
 require 'src/objects/Bush'
+require 'src/objects/Flag'
 
 gSounds = {
     ['jump'] = love.audio.newSource('sounds/jump.wav', 'static'),
@@ -79,7 +80,9 @@ gTextures = {
     ['gems'] = love.graphics.newImage('graphics/gems.png'),
     ['backgrounds'] = love.graphics.newImage('graphics/backgrounds.png'),
     ['green-alien'] = love.graphics.newImage('graphics/green_alien.png'),
-    ['creatures'] = love.graphics.newImage('graphics/creatures.png')
+    ['creatures'] = love.graphics.newImage('graphics/creatures.png'),
+    ['flags'] = love.graphics.newImage('graphics/flags.png'),
+    ['poles'] = love.graphics.newImage('graphics/poles.png')
 }
 
 gFrames = {
@@ -91,7 +94,9 @@ gFrames = {
     ['gems'] = GenerateQuads(gTextures['gems'], 16, 16),
     ['backgrounds'] = GenerateQuads(gTextures['backgrounds'], 256, 128),
     ['green-alien'] = GenerateQuads(gTextures['green-alien'], 16, 20),
-    ['creatures'] = GenerateQuads(gTextures['creatures'], 16, 16)
+    ['creatures'] = GenerateQuads(gTextures['creatures'], 16, 16),
+    ['flags'] = GenerateQuads(gTextures['flags'], 16, 16),
+    ['poles'] = GenerateQuads(gTextures['poles'], 16, 48)
 }
 
 -- these need to be added after gFrames is initialized because they refer to gFrames from within
