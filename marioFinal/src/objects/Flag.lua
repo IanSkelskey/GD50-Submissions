@@ -1,6 +1,7 @@
 Flag = Class{__includes = GameObject}
 
 function Flag:init(x, y, color, eventManager)
+    
     self.color = color  -- 1, 2, 3, or 4
     self.animation = Animation {
         frames = {1, 2},  -- Assuming the first two frames are for waving
@@ -17,9 +18,14 @@ function Flag:init(x, y, color, eventManager)
         frame = self:getFrameForColor(),
         width = 16,
         height = 48,
-        consumable = false,
+        consumable = true,
         solid = false,
-        collidable = false,
+        collidable = true,
+        onConsume = function(player, object)
+            gSounds['pickup']:play()
+            player.score = player.score + 100
+            eventManager:emit('flagConsume', player)
+        end
     })
 end
 

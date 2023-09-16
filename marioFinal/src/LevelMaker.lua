@@ -57,6 +57,8 @@ function LevelMaker.generate(width, height)
     -- event manager for world events
     local eventManager = EventManager()
 
+    print('Level width: ' .. tostring(width))
+
     -- Subscribe to 'blockHit' event
     eventManager:subscribe('blockHit', function(reward)
         if reward then
@@ -74,6 +76,15 @@ function LevelMaker.generate(width, height)
         local flag = Flag((width - 14) * TILE_SIZE, (height - 7) * TILE_SIZE, color, eventManager)
         table.insert(objects, flag)
         print('Unlocking the lock! Spawned a flag!')
+    end)
+
+    eventManager:subscribe('flagConsume', function(player)
+        print('Flag consumed!')
+        -- Re-enter the playstate with a larger level width
+        gStateMachine:change('play', {
+            score = player.score,
+            levelWidth = width + 10
+        })
     end)
 
     local tileset = math.random(20)
@@ -160,7 +171,7 @@ function replaceJumpBlockWithLock(objects, color, eventManager)  -- Added eventM
         local randomIndex = jumpBlockIndices[math.random(#jumpBlockIndices)]
         local selectedJumpBlock = objects[randomIndex]
         print("Frame for Lock: ", LOCKS[color])
-        objects[randomIndex] = Lock(selectedJumpBlock.x, selectedJumpBlock.y - 16, color, eventManager)  -- Passed eventManager here
+        objects[randomIndex] = Lock(selectedJumpBlock.x, selectedJumpBlock.y, color, eventManager)  -- Passed eventManager here
     else
         print("No jump blocks found to replace with a lock.")
     end

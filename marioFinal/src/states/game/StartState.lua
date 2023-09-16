@@ -10,6 +10,12 @@
 
 StartState = Class{__includes = BaseState}
 
+local function drawBackground()
+    love.graphics.draw(gTextures['backgrounds'], gFrames['backgrounds'][1], 0, 0)
+    love.graphics.draw(gTextures['backgrounds'], gFrames['backgrounds'][1], 0,
+        gTextures['backgrounds']:getHeight() / 3 * 2, 0, 1, -1)
+end
+
 function StartState:init()
     self.map = LevelMaker.generate(100, 10)
     self.background = math.random(3)
@@ -17,14 +23,12 @@ end
 
 function StartState:update(dt)
     if love.keyboard.wasPressed('enter') or love.keyboard.wasPressed('return') then
-        gStateMachine:change('play')
+        gStateMachine:change('play', {score = 0, levelWidth = 100})
     end
 end
 
 function StartState:render()
-    love.graphics.draw(gTextures['backgrounds'], gFrames['backgrounds'][self.background], 0, 0)
-    love.graphics.draw(gTextures['backgrounds'], gFrames['backgrounds'][self.background], 0,
-        gTextures['backgrounds']:getHeight() / 3 * 2, 0, 1, -1)
+    drawBackground()
     self.map:render()
 
     love.graphics.setFont(gFonts['title'])

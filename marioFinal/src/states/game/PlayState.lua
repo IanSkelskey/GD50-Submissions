@@ -9,7 +9,7 @@ local function drawBackground(background, backgroundX)
         love.graphics.draw(gTextures['backgrounds'], gFrames['backgrounds'][background],
             math.floor(-backgroundX + offset), 0)
         love.graphics.draw(gTextures['backgrounds'], gFrames['backgrounds'][background],
-            math.floor(-backgroundX + offset), gTextures['backgrounds']:getHeight() / BACKGROUND_SPEED, 0, 1, -1)
+            math.floor(-backgroundX + offset), gTextures['backgrounds']:getHeight() / 3 * 2, 0, 1, -1)
     end
 end
 
@@ -49,6 +49,11 @@ end
 PlayState = Class {
     __includes = BaseState
 }
+
+function PlayState:enter(params)
+    self.score = params.score or 0
+    self.levelWidth = params.levelWidth or 100 
+end
 
 function PlayState:init()
     self.camX = 0
@@ -122,13 +127,14 @@ function PlayState:render()
     love.graphics.print(tostring(self.player.score), 4, 4)
     if (self.player.key) then
         love.graphics.draw(gTextures['keys-and-locks'], gFrames['keys-and-locks'][KEYS[self.player.key.color]],
-            VIRTUAL_WIDTH/2 + 16, 5)
+            VIRTUAL_WIDTH / 2 + 16, 5)
     end
 end
 
 function PlayState:updateCamera()
+    print('Player x: ' .. tostring(self.player.x) .. ', camX: ' .. tostring(self.camX))
     self.camX = math.max(0, math.min(TILE_SIZE * self.tileMap.width - VIRTUAL_WIDTH,
-        self.player.x - (VIRTUAL_WIDTH / 2 - 8)))
+        self.player.x - (VIRTUAL_WIDTH / 2 - TILE_SIZE * 5)))
     self.backgroundX = (self.camX / 3) % 256
 end
 
