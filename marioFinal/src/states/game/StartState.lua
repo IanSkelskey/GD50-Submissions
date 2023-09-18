@@ -6,9 +6,9 @@
 
     Author: Colton Ogden
     cogden@cs50.harvard.edu
-]]
-
-StartState = Class{__includes = BaseState}
+]] StartState = Class {
+    __includes = BaseState
+}
 
 local function drawBackground()
     love.graphics.draw(gTextures['backgrounds'], gFrames['backgrounds'][1], 0, 0)
@@ -23,7 +23,9 @@ end
 
 function StartState:update(dt)
     if love.keyboard.wasPressed('enter') or love.keyboard.wasPressed('return') then
-        gStateMachine:change('play', {score = 0, levelWidth = 100})
+        gStateMachine:change('play', {
+            levelWidth = 100
+        })
     end
 end
 

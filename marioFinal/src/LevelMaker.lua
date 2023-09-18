@@ -50,6 +50,7 @@ end
 
 -- Main function to generate the level
 function LevelMaker.generate(width, height)
+    print('Generating level of width: ' .. tostring(width) .. ' and height: ' .. tostring(height))
     local tiles = initializeTiles(height)
     local entities = {}
     local objects = {}
@@ -82,7 +83,7 @@ function LevelMaker.generate(width, height)
         print('Flag consumed!')
         -- Re-enter the playstate with a larger level width
         gStateMachine:change('play', {
-            score = player.score,
+            player = player,
             levelWidth = width + 10
         })
     end)

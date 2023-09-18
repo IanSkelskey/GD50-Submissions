@@ -51,21 +51,12 @@ PlayState = Class {
 }
 
 function PlayState:enter(params)
-    self.score = params.score or 0
-    self.levelWidth = params.levelWidth or 100 
-end
+    print('Score: ' .. tostring(params.score))
+    print('Level width: ' .. tostring(params.levelWidth))
+    self.levelWidth = params.levelWidth or 100
 
-function PlayState:init()
-    self.camX = 0
-    self.camY = 0
-    self.level = LevelMaker.generate(100, 10)
+    self.level = LevelMaker.generate(self.levelWidth, 10)
     self.tileMap = self.level.tileMap
-    self.background = math.random(3)
-    self.backgroundX = 0
-
-    self.gravityOn = true
-    self.gravityAmount = 6
-
     -- Find the first column with solid ground
     local spawnX = 0
     for x = 1, self.tileMap.width do
@@ -82,20 +73,41 @@ function PlayState:init()
         end
     end
 
-    self.player = Player({
-        x = spawnX,
-        y = 0, -- Spawn at the top of the screen
-        width = 16,
-        height = 20,
-        texture = 'green-alien',
-        map = self.tileMap,
-        level = self.level
-    })
+    if params.player then
+        print('Player exists! Updating player properties')
+        self.player = params.player  -- Use the existing player object
+        self.player.x = spawnX
+        self.player.y = 0
+        self.player.map = self.tileMap
+        self.player.level = self.level
+    else
+        print('Creating new player')
+        self.player = Player({
+            x = spawnX,
+            y = 0,
+            width = 16,
+            height = 20,
+            score = 0,  -- Initialize the score here
+            texture = 'green-alien',
+            map = self.tileMap,
+            level = self.level
+        })
+    end
 
     self.player.stateMachine = initPlayerStateMachine(self.player, self.gravityAmount)
 
     self:spawnEnemies()
     self.player:changeState('falling')
+end
+
+function PlayState:init()
+    self.camX = 0
+    self.camY = 0
+    self.background = math.random(3)
+    self.backgroundX = 0
+    
+    self.gravityOn = true
+    self.gravityAmount = 6
 end
 
 function PlayState:update(dt)
@@ -132,7 +144,6 @@ function PlayState:render()
 end
 
 function PlayState:updateCamera()
-    print('Player x: ' .. tostring(self.player.x) .. ', camX: ' .. tostring(self.camX))
     self.camX = math.max(0, math.min(TILE_SIZE * self.tileMap.width - VIRTUAL_WIDTH,
         self.player.x - (VIRTUAL_WIDTH / 2 - TILE_SIZE * 5)))
     self.backgroundX = (self.camX / 3) % 256

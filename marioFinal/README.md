@@ -10,7 +10,7 @@ Super Mario Bros. is a 2D platformer game. The objectives of this assignment are
 - [x] Programmed to ensure that the player is always spawned above solid ground
 - [x] In LevelMaker.lua, implemented a random-colored key and lock block
 - [x] Triggered a goal post to spawn at the end of the level once the lock disappears
-- [ ] Regenerated the level when the player touches the goal post, and made it a little longer
+- [x] Regenerated the level when the player touches the goal post, and made it a little longer
 
 ---
 
