@@ -105,7 +105,6 @@ function PlayState:init()
     self.camY = 0
     self.background = math.random(3)
     self.backgroundX = 0
-    
     self.gravityOn = true
     self.gravityAmount = 6
 end
@@ -144,7 +143,7 @@ function PlayState:render()
 end
 
 function PlayState:updateCamera()
-    self.camX = math.max(0, math.min(TILE_SIZE * self.tileMap.width - VIRTUAL_WIDTH,
+    self.camX = math.max(0, math.min(TILE_SIZE * self.tileMap.width - VIRTUAL_WIDTH/2 - TILE_SIZE * 2,
         self.player.x - (VIRTUAL_WIDTH / 2 - TILE_SIZE * 5)))
     self.backgroundX = (self.camX / 3) % 256
 end
