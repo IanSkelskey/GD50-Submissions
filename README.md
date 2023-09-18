@@ -28,7 +28,7 @@ This repository contains my projects for Harvard University's CS50's Introductio
 - [ ] Assignment Submitted through Official Channels 📬
 
 ### Super Mario Bros. 🍄
-- [ ] Coding Assignment Completed
+- [x] Coding Assignment Completed
 - [ ] Screencast Published to YouTube 📹
 - [ ] Assignment Submitted through Official Channels 📬
 
