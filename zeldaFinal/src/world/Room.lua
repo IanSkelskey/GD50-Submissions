@@ -8,40 +8,69 @@
 
 Room = Class{}
 
+-- Initialize Room
 function Room:init(player)
+    self:initDimensions()
+    self:initTiles()
+    self:initEntities()
+    self:initObjects()
+    self:initDoorways()
+    self:initPlayer(player)
+    self:initRenderOffsets()
+end
+
+-- Initialize dimensions
+function Room:initDimensions()
     self.width = MAP_WIDTH
     self.height = MAP_HEIGHT
+end
 
+-- Initialize tiles
+function Room:initTiles()
     self.tiles = {}
     self:generateWallsAndFloors()
+end
 
-    -- entities in the room
+-- Initialize entities
+function Room:initEntities()
     self.entities = {}
     self:generateEntities()
+end
 
-    -- game objects in the room
+-- Initialize objects
+function Room:initObjects()
     self.objects = {}
     self:generateObjects()
+end
 
-    -- doorways that lead to other dungeon rooms
+-- Initialize doorways
+function Room:initDoorways()
     self.doorways = {}
-    table.insert(self.doorways, Doorway('top', false, self))
-    table.insert(self.doorways, Doorway('bottom', false, self))
-    table.insert(self.doorways, Doorway('left', false, self))
-    table.insert(self.doorways, Doorway('right', false, self))
+    self:generateDoorways()
+end
 
-    -- reference to player for collisions, etc.
+-- Initialize player
+function Room:initPlayer(player)
     self.player = player
+end
 
-    -- used for centering the dungeon rendering
+-- Initialize render offsets
+function Room:initRenderOffsets()
     self.renderOffsetX = MAP_RENDER_OFFSET_X
     self.renderOffsetY = MAP_RENDER_OFFSET_Y
-
-    -- used for drawing when this room is the next room, adjacent to the active
     self.adjacentOffsetX = 0
     self.adjacentOffsetY = 0
 end
 
+-- Generate doorways
+function Room:generateDoorways()
+    local directions = {'top', 'bottom', 'left', 'right'}
+    for _, dir in pairs(directions) do
+        table.insert(self.doorways, Doorway(dir, false, self))
+    end
+end
+
+-- Existing functions like generateEntities, generateObjects, generateWallsAndFloors remain the same
 --[[
     Randomly creates an assortment of enemies for the player to fight.
 ]]
@@ -146,46 +175,72 @@ function Room:generateWallsAndFloors()
     end
 end
 
+-- Update function
 function Room:update(dt)
-    
-    -- don't update anything if we are sliding to another room (we have offsets)
-    if self.adjacentOffsetX ~= 0 or self.adjacentOffsetY ~= 0 then return end
+    if self:isSlidingToAnotherRoom() then return end
 
+    self:updatePlayer(dt)
+    self:updateEntities(dt)
+    self:updateObjects(dt)
+end
+
+-- Check if sliding to another room
+function Room:isSlidingToAnotherRoom()
+    return self.adjacentOffsetX ~= 0 or self.adjacentOffsetY ~= 0
+end
+
+-- Update player
+function Room:updatePlayer(dt)
     self.player:update(dt)
+end
 
-    for i = #self.entities, 1, -1 do
-        local entity = self.entities[i]
-
-        -- remove entity from the table if health is <= 0
-        if entity.health <= 0 then
-            entity.dead = true
-        elseif not entity.dead then
-            entity:processAI({room = self}, dt)
-            entity:update(dt)
-        end
-
-        -- collision between the player and entities in the room
-        if not entity.dead and self.player:collides(entity) and not self.player.invulnerable then
-            gSounds['hit-player']:play()
-            self.player:damage(1)
-            self.player:goInvulnerable(1.5)
-
-            if self.player.health == 0 then
-                gStateMachine:change('game-over')
-            end
-        end
+-- Update entities
+function Room:updateEntities(dt)
+    for i, entity in ipairs(self.entities) do
+        self:updateEntity(entity, dt, i)
     end
+end
 
-    for k, object in pairs(self.objects) do
+-- Update single entity
+function Room:updateEntity(entity, dt, index)
+    if entity.health <= 0 then
+        entity.dead = true
+    elseif not entity.dead then
+        entity:processAI({room = self}, dt)
+        entity:update(dt)
+    end
+    self:checkPlayerEntityCollision(entity)
+end
+
+-- Check collision between player and entity
+function Room:checkPlayerEntityCollision(entity)
+    if not entity.dead and self.player:collides(entity) and not self.player.invulnerable then
+        self:handlePlayerDamage()
+    end
+end
+
+-- Handle player damage
+function Room:handlePlayerDamage()
+    gSounds['hit-player']:play()
+    self.player:damage(1)
+    self.player:goInvulnerable(1.5)
+
+    if self.player.health == 0 then
+        gStateMachine:change('game-over')
+    end
+end
+
+-- Update objects
+function Room:updateObjects(dt)
+    for _, object in pairs(self.objects) do
         object:update(dt)
-
-        -- trigger collision callback on object
         if self.player:collides(object) then
             object:onCollide()
         end
     end
 end
 
+-- Existing render function remains the same
 function Room:render()
     for y = 1, self.height do
         for x = 1, self.width do
@@ -238,27 +293,4 @@ function Room:render()
 
     love.graphics.setStencilTest()
 
-    --
-    -- DEBUG DRAWING OF STENCIL RECTANGLES
-    --
-
-    -- love.graphics.setColor(255, 0, 0, 100)
-    
-    -- -- left
-    -- love.graphics.rectangle('fill', -TILE_SIZE - 6, MAP_RENDER_OFFSET_Y + (MAP_HEIGHT / 2) * TILE_SIZE - TILE_SIZE,
-    -- TILE_SIZE * 2 + 6, TILE_SIZE * 2)
-
-    -- -- right
-    -- love.graphics.rectangle('fill', MAP_RENDER_OFFSET_X + (MAP_WIDTH * TILE_SIZE),
-    --     MAP_RENDER_OFFSET_Y + (MAP_HEIGHT / 2) * TILE_SIZE - TILE_SIZE, TILE_SIZE * 2 + 6, TILE_SIZE * 2)
-
-    -- -- top
-    -- love.graphics.rectangle('fill', MAP_RENDER_OFFSET_X + (MAP_WIDTH / 2) * TILE_SIZE - TILE_SIZE,
-    --     -TILE_SIZE - 6, TILE_SIZE * 2, TILE_SIZE * 2 + 12)
-
-    -- --bottom
-    -- love.graphics.rectangle('fill', MAP_RENDER_OFFSET_X + (MAP_WIDTH / 2) * TILE_SIZE - TILE_SIZE,
-    --     VIRTUAL_HEIGHT - TILE_SIZE - 6, TILE_SIZE * 2, TILE_SIZE * 2 + 12)
-    
-    -- love.graphics.setColor(255, 255, 255, 255)
 end
