@@ -6,8 +6,8 @@ The Legend of Zelda project is a top-down adventure game inspired by the classic
 ---
 
 ## Completion Checklist ✅
-- [ ] Read and understand all of the Legend of Zelda source code from Lecture 5
-- [ ] Implemented hearts that sometimes drop from enemies
+- [x] Read and understand all of the Legend of Zelda source code from Lecture 5
+- [x] Implemented hearts that sometimes drop from enemies
 - [ ] Added pots to the game world
 - [ ] Enabled the player to throw pots
 
