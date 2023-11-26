@@ -1,6 +1,5 @@
 -- EntityManager.lua
-
-EntityManager = Class{}
+EntityManager = Class {}
 
 function EntityManager:init(room)
     self.room = room
@@ -16,15 +15,20 @@ function EntityManager:generateEntities()
             animations = ENTITY_DEFS[type].animations,
             walkSpeed = ENTITY_DEFS[type].walkSpeed or 20,
             x = math.random(MAP_RENDER_OFFSET_X + TILE_SIZE, VIRTUAL_WIDTH - TILE_SIZE * 2 - 16),
-            y = math.random(MAP_RENDER_OFFSET_Y + TILE_SIZE, VIRTUAL_HEIGHT - (VIRTUAL_HEIGHT - MAP_HEIGHT * TILE_SIZE) + MAP_RENDER_OFFSET_Y - TILE_SIZE - 16),
+            y = math.random(MAP_RENDER_OFFSET_Y + TILE_SIZE,
+                VIRTUAL_HEIGHT - (VIRTUAL_HEIGHT - MAP_HEIGHT * TILE_SIZE) + MAP_RENDER_OFFSET_Y - TILE_SIZE - 16),
             width = 16,
             height = 16,
             health = 1
         })
 
         self.entities[i].stateMachine = StateMachine {
-            ['walk'] = function() return EntityWalkState(self.entities[i]) end,
-            ['idle'] = function() return EntityIdleState(self.entities[i]) end
+            ['walk'] = function()
+                return EntityWalkState(self.entities[i])
+            end,
+            ['idle'] = function()
+                return EntityIdleState(self.entities[i])
+            end
         }
 
         self.entities[i]:changeState('walk')
@@ -40,8 +44,16 @@ end
 function EntityManager:updateEntity(entity, dt, index)
     if entity.health <= 0 then
         entity.dead = true
+        -- Heart drop logic
+        local CHANCE_TO_DROP_HEART = 0.5 -- 50% chance to drop a heart
+        if math.random() < CHANCE_TO_DROP_HEART then
+            local heart = GameObject(GAME_OBJECT_DEFS['heart-drop'], entity.x, entity.y)
+            table.insert(self.room.objects, heart) -- Add heart to the room objects
+        end
     elseif not entity.dead then
-        entity:processAI({room = self.room}, dt)
+        entity:processAI({
+            room = self.room
+        }, dt)
         entity:update(dt)
     end
     self:checkPlayerEntityCollision(entity)
@@ -61,6 +73,8 @@ end
 
 function EntityManager:render()
     for k, entity in pairs(self.entities) do
-        if not entity.dead then entity:render(self.room.adjacentOffsetX, self.room.adjacentOffsetY) end
+        if not entity.dead then
+            entity:render(self.room.adjacentOffsetX, self.room.adjacentOffsetY)
+        end
     end
 end

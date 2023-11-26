@@ -43,6 +43,7 @@ gTextures = {
     ['character-walk'] = love.graphics.newImage('graphics/character_walk.png'),
     ['character-swing-sword'] = love.graphics.newImage('graphics/character_swing_sword.png'),
     ['hearts'] = love.graphics.newImage('graphics/hearts.png'),
+    ['heart-drop'] = love.graphics.newImage('graphics/heart-drop.png'),
     ['switches'] = love.graphics.newImage('graphics/switches.png'),
     ['entities'] = love.graphics.newImage('graphics/entities.png')
 }
@@ -53,6 +54,7 @@ gFrames = {
     ['character-swing-sword'] = GenerateQuads(gTextures['character-swing-sword'], 32, 32),
     ['entities'] = GenerateQuads(gTextures['entities'], 16, 16),
     ['hearts'] = GenerateQuads(gTextures['hearts'], 16, 16),
+    ['heart-drop'] = GenerateQuads(gTextures['heart-drop'], 16, 16),
     ['switches'] = GenerateQuads(gTextures['switches'], 16, 18)
 }
 

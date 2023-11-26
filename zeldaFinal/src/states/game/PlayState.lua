@@ -43,6 +43,15 @@ function PlayState:update(dt)
     end
 
     self.dungeon:update(dt)
+
+    -- New logic for heart consumption
+    for i, object in ipairs(self.currentRoom.objects) do
+        if object.type == 'heart-drop' and self.player:collides(object) then
+            object.onConsume(self.player, object) -- Consume the heart
+            table.remove(self.currentRoom.objects, i) -- Remove the heart
+            break -- Assuming only one heart can be consumed at a time
+        end
+    end
 end
 
 function PlayState:render()
