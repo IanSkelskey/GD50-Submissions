@@ -42,20 +42,25 @@ function EntityManager:update(dt)
 end
 
 function EntityManager:updateEntity(entity, dt, index)
-    if entity.health <= 0 then
+    -- Check if the entity's health is zero and it's not already marked as dead
+    if entity.health <= 0 and not entity.dead then
+        -- Mark the entity as dead
         entity.dead = true
+
         -- Heart drop logic
         local CHANCE_TO_DROP_HEART = 0.5 -- 50% chance to drop a heart
         if math.random() < CHANCE_TO_DROP_HEART then
             local heart = GameObject(GAME_OBJECT_DEFS['heart-drop'], math.ceil(entity.x), math.ceil(entity.y))
             table.insert(self.room.objects, heart) -- Add heart to the room objects
+            gSounds['heart-reveal']:play() 
         end
     elseif not entity.dead then
-        entity:processAI({
-            room = self.room
-        }, dt)
+        -- Process AI and update entity if it's not dead
+        entity:processAI({ room = self.room }, dt)
         entity:update(dt)
     end
+
+    -- Check collision with the player
     self:checkPlayerEntityCollision(entity)
 end
 

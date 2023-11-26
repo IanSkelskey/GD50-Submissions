@@ -43,6 +43,7 @@
         consumable = true,
         collidable = true,
         onConsume = function(player, object)
+            gSounds['heart-pickup']:play()
             player.health = math.min(player.health + 1, 6)
         end,
         defaultState = 'uncollected',
