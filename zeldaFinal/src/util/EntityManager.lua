@@ -47,7 +47,7 @@ function EntityManager:updateEntity(entity, dt, index)
         -- Heart drop logic
         local CHANCE_TO_DROP_HEART = 0.5 -- 50% chance to drop a heart
         if math.random() < CHANCE_TO_DROP_HEART then
-            local heart = GameObject(GAME_OBJECT_DEFS['heart-drop'], entity.x, entity.y)
+            local heart = GameObject(GAME_OBJECT_DEFS['heart-drop'], math.ceil(entity.x), math.ceil(entity.y))
             table.insert(self.room.objects, heart) -- Add heart to the room objects
         end
     elseif not entity.dead then

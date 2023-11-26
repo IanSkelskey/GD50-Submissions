@@ -41,6 +41,7 @@
         height = 16,
         solid = false,
         consumable = true,
+        collidable = true,
         onConsume = function(player, object)
             player.health = math.min(player.health + 1, 6)
         end,
