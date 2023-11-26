@@ -39,6 +39,7 @@ function EntityManager:update(dt)
     for i, entity in ipairs(self.entities) do
         self:updateEntity(entity, dt, i)
     end
+    self:checkPlayerObjectCollision()
 end
 
 function EntityManager:updateEntity(entity, dt, index)
@@ -52,16 +53,21 @@ function EntityManager:updateEntity(entity, dt, index)
         if math.random() < CHANCE_TO_DROP_HEART then
             local heart = GameObject(GAME_OBJECT_DEFS['heart-drop'], math.ceil(entity.x), math.ceil(entity.y))
             table.insert(self.room.objects, heart) -- Add heart to the room objects
-            gSounds['heart-reveal']:play() 
+            gSounds['heart-reveal']:play()
+            print("Heart object right after creation:")
+            print_r(heart)
         end
     elseif not entity.dead then
         -- Process AI and update entity if it's not dead
-        entity:processAI({ room = self.room }, dt)
+        entity:processAI({
+            room = self.room
+        }, dt)
         entity:update(dt)
     end
 
     -- Check collision with the player
     self:checkPlayerEntityCollision(entity)
+
 end
 
 function EntityManager:checkPlayerEntityCollision(entity)
@@ -72,6 +78,21 @@ function EntityManager:checkPlayerEntityCollision(entity)
 
         if self.room.player.health == 0 then
             gStateMachine:change('game-over')
+        end
+    end
+end
+
+function EntityManager:checkPlayerObjectCollision()
+    -- New logic for checking collision with consumable objects like hearts
+    for i = #self.room.objects, 1, -1 do
+        local object = self.room.objects[i]
+        if object.type == 'heart-drop' and self.room.player:collides(object) then
+            gSounds['heart-pickup']:play()
+            print("heart object right before onConsume:")
+            print_r(object)
+            object.onConsume(self.room.player, object) -- Consume the heart
+            table.remove(self.room.objects, i) -- Remove the heart
+            break -- Assuming only one heart can be consumed at a time
         end
     end
 end

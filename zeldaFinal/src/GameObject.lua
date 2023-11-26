@@ -28,7 +28,8 @@ function GameObject:init(def, x, y)
     self.height = def.height
 
     -- default empty collision callback
-    self.onCollide = function() end
+    self.onCollide = def.onCollide
+    self.onConsume = def.onConsume
 end
 
 function GameObject:update(dt)
