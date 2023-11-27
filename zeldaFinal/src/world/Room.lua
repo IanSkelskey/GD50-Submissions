@@ -4,9 +4,7 @@
 
     Author: Colton Ogden
     cogden@cs50.harvard.edu
-]]
-
-Room = Class{}
+]] Room = Class {}
 
 -- Initialize Room
 function Room:init(player)
@@ -73,19 +71,23 @@ end
     Randomly creates an assortment of obstacles for the player to navigate around.
 ]]
 function Room:generateObjects()
-    local switch = GameObject(
-        GAME_OBJECT_DEFS['switch'],
-        math.random(MAP_RENDER_OFFSET_X + TILE_SIZE,
-                    VIRTUAL_WIDTH - TILE_SIZE * 2 - 16),
-        math.random(MAP_RENDER_OFFSET_Y + TILE_SIZE,
-                    VIRTUAL_HEIGHT - (VIRTUAL_HEIGHT - MAP_HEIGHT * TILE_SIZE) + MAP_RENDER_OFFSET_Y - TILE_SIZE - 16)
-    )
+    -- generate switch
+    self:generateSwitch()
 
+    -- generate pots
+    self:generatePots()
+end
+
+function Room:generateSwitch()
+    local switch = GameObject(GAME_OBJECT_DEFS['switch'],
+        math.random(MAP_RENDER_OFFSET_X + TILE_SIZE, VIRTUAL_WIDTH - TILE_SIZE * 2 - 16),
+        math.random(MAP_RENDER_OFFSET_Y + TILE_SIZE,
+            VIRTUAL_HEIGHT - (VIRTUAL_HEIGHT - MAP_HEIGHT * TILE_SIZE) + MAP_RENDER_OFFSET_Y - TILE_SIZE - 16))
     -- define a function for the switch that will open all doors in the room
     switch.onCollide = function()
         if switch.state == 'unpressed' then
             switch.state = 'pressed'
-            
+
             -- open every door in the room if we press the switch
             for k, doorway in pairs(self.doorways) do
                 doorway.open = true
@@ -95,8 +97,19 @@ function Room:generateObjects()
         end
     end
 
-    -- add to list of objects in scene (only one switch for now)
     table.insert(self.objects, switch)
+    return switch
+end
+
+function Room:generatePots()
+    local POTS_COUNT = math.random(1, 4)
+    for i = 1, POTS_COUNT do
+        local pot = GameObject(GAME_OBJECT_DEFS['pot'],
+            math.random(MAP_RENDER_OFFSET_X + TILE_SIZE, VIRTUAL_WIDTH - TILE_SIZE * 2 - 16),
+            math.random(MAP_RENDER_OFFSET_Y + TILE_SIZE, VIRTUAL_HEIGHT - (VIRTUAL_HEIGHT - MAP_HEIGHT * TILE_SIZE) +
+                MAP_RENDER_OFFSET_Y - TILE_SIZE - 16))
+        table.insert(self.objects, pot)
+    end
 end
 
 --[[
@@ -118,8 +131,8 @@ function Room:generateWallsAndFloors()
                 id = TILE_TOP_RIGHT_CORNER
             elseif x == self.width and y == self.height then
                 id = TILE_BOTTOM_RIGHT_CORNER
-            
-            -- random left-hand walls, right walls, top, bottom, and floors
+
+                -- random left-hand walls, right walls, top, bottom, and floors
             elseif x == 1 then
                 id = TILE_LEFT_WALLS[math.random(#TILE_LEFT_WALLS)]
             elseif x == self.width then
@@ -131,7 +144,7 @@ function Room:generateWallsAndFloors()
             else
                 id = TILE_FLOORS[math.random(#TILE_FLOORS)]
             end
-            
+
             table.insert(self.tiles[y], {
                 id = id
             })
@@ -141,7 +154,9 @@ end
 
 -- Update function
 function Room:update(dt)
-    if self:isSlidingToAnotherRoom() then return end
+    if self:isSlidingToAnotherRoom() then
+        return
+    end
 
     self:updatePlayer(dt)
     self.entityManager:update(dt)
@@ -181,7 +196,9 @@ function Room:updateObjects(dt)
     for _, object in pairs(self.objects) do
         object:update(dt)
         if self.player:collides(object) then
-            object:onCollide()
+            if object.onCollide then
+                object:onCollide()
+            end
         end
     end
 end
@@ -192,7 +209,7 @@ function Room:render()
         for x = 1, self.width do
             local tile = self.tiles[y][x]
             love.graphics.draw(gTextures['tiles'], gFrames['tiles'][tile.id],
-                (x - 1) * TILE_SIZE + self.renderOffsetX + self.adjacentOffsetX, 
+                (x - 1) * TILE_SIZE + self.renderOffsetX + self.adjacentOffsetX,
                 (y - 1) * TILE_SIZE + self.renderOffsetY + self.adjacentOffsetY)
         end
     end
@@ -211,26 +228,26 @@ function Room:render()
 
     -- stencil out the door arches so it looks like the player is going through
     love.graphics.stencil(function()
-        
+
         -- left
         love.graphics.rectangle('fill', -TILE_SIZE - 6, MAP_RENDER_OFFSET_Y + (MAP_HEIGHT / 2) * TILE_SIZE - TILE_SIZE,
             TILE_SIZE * 2 + 6, TILE_SIZE * 2)
-        
+
         -- right
         love.graphics.rectangle('fill', MAP_RENDER_OFFSET_X + (MAP_WIDTH * TILE_SIZE),
             MAP_RENDER_OFFSET_Y + (MAP_HEIGHT / 2) * TILE_SIZE - TILE_SIZE, TILE_SIZE * 2 + 6, TILE_SIZE * 2)
-        
+
         -- top
-        love.graphics.rectangle('fill', MAP_RENDER_OFFSET_X + (MAP_WIDTH / 2) * TILE_SIZE - TILE_SIZE,
-            -TILE_SIZE - 6, TILE_SIZE * 2, TILE_SIZE * 2 + 12)
-        
-        --bottom
+        love.graphics.rectangle('fill', MAP_RENDER_OFFSET_X + (MAP_WIDTH / 2) * TILE_SIZE - TILE_SIZE, -TILE_SIZE - 6,
+            TILE_SIZE * 2, TILE_SIZE * 2 + 12)
+
+        -- bottom
         love.graphics.rectangle('fill', MAP_RENDER_OFFSET_X + (MAP_WIDTH / 2) * TILE_SIZE - TILE_SIZE,
             VIRTUAL_HEIGHT - TILE_SIZE - 6, TILE_SIZE * 2, TILE_SIZE * 2 + 12)
     end, 'replace', 1)
 
     love.graphics.setStencilTest('less', 1)
-    
+
     if self.player then
         self.player:render()
     end

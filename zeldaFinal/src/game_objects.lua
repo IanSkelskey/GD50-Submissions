@@ -23,7 +23,21 @@
         }
     },
     ['pot'] = {
-        -- TODO
+       type = 'pot',
+       texture = 'tiles',
+       frame = 110,
+       width = 16,
+       height = 16,
+       solid = true,
+       defaultState = 'idle',
+       states = {
+           ['idle'] = {
+               frame = 110
+           },
+           ['broken'] = {
+               frame = 111
+           }
+       }
     },
     ['heart'] = {
         type = 'heart',
